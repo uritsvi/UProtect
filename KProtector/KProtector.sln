@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KProtector", "KProtector.vcxproj", "{81D71944-2DA4-423C-B693-7E8278DBDB91}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProtectorClient", "..\ProtectorClient\ProtectorClient.vcxproj", "{8464E362-1CBB-4A95-A82B-A8E14B513839}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{501F9AC4-5175-4BFA-AC0E-CD36EFDDE163}"
+	ProjectSection(SolutionItems) = preProject
+		DriverCommon.h = DriverCommon.h
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM64 = Debug|ARM64
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|ARM64 = Release|ARM64
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|ARM64.Build.0 = Debug|ARM64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|x64.ActiveCfg = Debug|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|x64.Build.0 = Debug|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|x64.Deploy.0 = Debug|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|x86.ActiveCfg = Debug|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|x86.Build.0 = Debug|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Debug|x86.Deploy.0 = Debug|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|ARM64.ActiveCfg = Release|ARM64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|ARM64.Build.0 = Release|ARM64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|ARM64.Deploy.0 = Release|ARM64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|x64.ActiveCfg = Release|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|x64.Build.0 = Release|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|x64.Deploy.0 = Release|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|x86.ActiveCfg = Release|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|x86.Build.0 = Release|x64
+		{81D71944-2DA4-423C-B693-7E8278DBDB91}.Release|x86.Deploy.0 = Release|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Debug|ARM64.ActiveCfg = Debug|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Debug|ARM64.Build.0 = Debug|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Debug|x64.ActiveCfg = Debug|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Debug|x64.Build.0 = Debug|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Debug|x86.ActiveCfg = Debug|Win32
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Debug|x86.Build.0 = Debug|Win32
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Release|ARM64.ActiveCfg = Release|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Release|ARM64.Build.0 = Release|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Release|x64.ActiveCfg = Release|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Release|x64.Build.0 = Release|x64
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Release|x86.ActiveCfg = Release|Win32
+		{8464E362-1CBB-4A95-A82B-A8E14B513839}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {06F1D456-C4FA-449E-92DB-6D8950C53DC7}
+	EndGlobalSection
+EndGlobal
