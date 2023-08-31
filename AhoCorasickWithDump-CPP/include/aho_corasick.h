@@ -7,6 +7,7 @@
 #include "..\..\AhoCorasickWithDump-CPP\include\list.h"
 #include "..\..\AhoCorasickWithDump-CPP\include\lib.h"
 
+
 #define MAX_LEAVES 1 << 16
 
 #define INT_NULL_VALUE -100

@@ -1,9 +1,14 @@
-#include "..\KTL\include\KTL.h"
 #include "..\Common\Common.h"
+
 
 #include "Registry.h"
 #include "RAIIRegistry.h"
+#include "..\KTL\include\KTLMemory.hpp"
 
+/*
+* I include this file last becaus it is dependent on 
+* ntddk.h witch should be included first
+*/
 #include <ntstrsafe.h>
 
 #define NUM_OF_CHARS_FOR_SIZE 6
@@ -13,6 +18,8 @@ struct ReadChuk {
 	KEY_VALUE_PARTIAL_INFORMATION Info;
 	char Data[DEFAULT_BUFFER_SIZE];
 };
+
+
 
 NTSTATUS RegistryBlocker::LoadAchoCorasickTrie() {
 	
@@ -148,6 +155,7 @@ RegistryBlocker::RegistryBlocker() {
 
 RegistryBlocker::~RegistryBlocker() {
 	CmUnRegisterCallback(m_Cookie);
+	delete m_BlockTrie;
 }
 
 void RegistryBlocker::StartProtect() {

@@ -1,14 +1,26 @@
+#include "MiniFilter.h"
 
 #include "Driver.h"
 #include "Registry.h"
 #include "RAIIRegistry.h"
 
+#include "..\KTL\include\KTLMemory.hpp"
+
 #define DEV_NAME L"\\Device\\KProtect"
 #define SYM_LINK L"\\??\\KProtect"
 
 RegistryBlocker* g_Registry;
+MiniFilter* g_Filter;
 
 void CleanUp(_In_ DRIVER_OBJECT* Driver) {
+	/*
+	if (g_Filter) {
+		delete g_Filter;
+	}
+	*/
+
+	FltUnregisterFilter(g_Filter->m_Filter);
+	
 	if (Driver->DeviceObject != nullptr) {
 		UNICODE_STRING symLink = 
 			RTL_CONSTANT_STRING(SYM_LINK);
@@ -102,6 +114,7 @@ extern "C" NTSTATUS DriverEntry(
 
 		dev->Flags |= DO_BUFFERED_IO;
 
+
 #ifdef DBG
 		Driver->DriverUnload = Unload;
 #endif
@@ -129,6 +142,22 @@ extern "C" NTSTATUS DriverEntry(
 			RegistryBlocker::CreateRegistryBlocker(&g_Registry);
 		if (!NT_SUCCESS(status)) {
 			CleanUp(Driver);
+			break;
+		}
+
+		g_Filter = new (POOL_FLAG_PAGED, DRIVER_TAG)MiniFilter();
+		status = g_Filter->Init(
+			Driver, 
+			Registry);
+		if (!NT_SUCCESS(status)) {
+			KdPrint(("Failed to init mini filter"));
+			break;
+		}
+
+		status = 
+			g_Filter->StartProtect();
+		if (!NT_SUCCESS(status)) {
+			KdPrint(("Failed to start filtering"));
 			break;
 		}
 

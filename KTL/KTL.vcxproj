@@ -106,6 +106,9 @@
     <ClInclude Include="include\KTL.h" />
     <ClInclude Include="include\KTLMemory.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Memory.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
