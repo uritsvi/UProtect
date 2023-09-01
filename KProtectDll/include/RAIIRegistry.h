@@ -7,6 +7,7 @@
 class RAIIReigstryKey {
 
 public:
+	RAIIReigstryKey() = default;
 	RAIIReigstryKey(
 		_In_ HKEY Root,
 		_In_ const WCHAR* RelativePath,

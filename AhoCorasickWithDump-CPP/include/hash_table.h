@@ -4,7 +4,6 @@
  #define MAX_KEYS (1 << 16)  
    
  #include <sal.h>  
- //#include <stdint.h>  
  #include <stdbool.h>  
    
  #include "list.h"  

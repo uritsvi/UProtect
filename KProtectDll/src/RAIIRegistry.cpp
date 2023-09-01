@@ -6,6 +6,44 @@
 #include "..\include\RAIIRegistry.h"
 #include "..\..\Common\Common.h"
 
+bool RAIIReigstryKey::DeleteValue(_In_ const WCHAR* Name) {
+	auto status = RegDeleteValue(
+		m_Key,
+		Name);
+	if (status != ERROR_SUCCESS) {
+		return false;
+	}
+	return true;
+}
+
+bool RAIIReigstryKey::DeleteAllValue() {
+	int i = 0;
+
+
+	LSTATUS status;
+	while (true) {
+		WCHAR valueName[DEFAULT_BUFFER_SIZE] = { 0 };
+		int valueNameLen = sizeof(valueName);
+
+		status = RegEnumValueW(
+			m_Key,
+			0,
+			valueName,
+			(DWORD*)&valueNameLen,
+			nullptr,
+			nullptr,
+			nullptr,
+			nullptr);
+
+		DeleteValue(valueName);
+
+		if (status != ERROR_SUCCESS) {
+			return false;
+		}
+
+	}
+}
+
 RAIIReigstryKey::RAIIReigstryKey(
 	_In_ HKEY Root,
 	_In_ const WCHAR* RelativePath,
