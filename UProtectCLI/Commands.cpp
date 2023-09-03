@@ -115,7 +115,7 @@ bool TestCommand::Execute(
 		Msg = SUCCESS_TEST_PATHS;
 	}
 	if(res && !match) {
-		Msg = SUCCESS_TEST_PATHS;
+		Msg = FAILED_TEST_PATHS;
 	}
 
 	return res;

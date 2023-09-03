@@ -306,6 +306,7 @@ bool AhoCorasick::TestAhoCorsickMatch(
 
 			i++;
 		}
+		res = true;
 
 		auto finalTrie =
 			reinterpret_cast<FinalTrieEntry*>(buffer);
@@ -317,7 +318,7 @@ bool AhoCorasick::TestAhoCorsickMatch(
 			Path,
 			&context,
 			&wCharRange);
-
+		
 
 	} while (false);
 

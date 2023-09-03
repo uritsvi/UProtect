@@ -14,4 +14,4 @@
 #define SUCCESSFULY_APPLYED_PATHS L"Successfuly applyed path"
 #define SUCCESSFULY_PROTECT_PATHS L"Successfuly protect paths"
 #define SUCCESS_TEST_PATHS L"Paths match!"
-#define FAILED_TEST_PATHS L"Paths do not match"
+#define FAILED_TEST_PATHS L"Paths do not match!"
