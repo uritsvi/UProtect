@@ -22,21 +22,39 @@ public:
 
 	bool WriteValueDWORD(
 		_In_ const WCHAR* ValueName,
-		_In_ DWORD Value);
+		_In_ DWORD Value
+	);
 	bool WriteValueQWORD(
 		_In_ const WCHAR* ValueName, 
-		_In_ DWORD64 Value);
+		_In_ DWORD64 Value
+	);
 	bool WriteMultiWString(
 		_In_ const WCHAR* ValueName, 
-		_In_ std::list<std::wstring> String);
+		_In_ std::list<std::wstring> String
+	);
 	bool WriteValue(
 		_In_ const WCHAR* ValueName,
 		_In_ const void* Buffer,
-		_In_ int Size);
+		_In_ int Size
+	);
 
 	bool ReadMultyStringValue(
-		const WCHAR* Name, 
-		std::list<std::wstring>& Paths);
+		_In_ const WCHAR* Name, 
+		_Out_ std::list<std::wstring>& Paths
+	);
+	bool ReadValueDWORD(
+		_In_ const WCHAR* Name, 
+		_Out_ DWORD& Dword
+	);
+	bool ReadValueQWORD(
+		_In_ const WCHAR* Name,
+		_Out_ DWORD64& Dword
+	);
+	bool ReadValue(
+		_In_ const WCHAR* Name, 
+		_Out_ char* Buffer,
+		_Inout_ DWORD& Size
+	);
 
 	bool DeleteAllValue();
 	bool DeleteValue(_In_ const WCHAR* Name);

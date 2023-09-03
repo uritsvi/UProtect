@@ -1,5 +1,3 @@
-#ifdef _WIN32
-
 #include <iostream>
 #include <sstream>
 
@@ -35,12 +33,15 @@ bool RAIIReigstryKey::DeleteAllValue() {
 			nullptr,
 			nullptr);
 
-		DeleteValue(valueName);
+		bool res = 
+			DeleteValue(valueName);
 
+		if (!res && (status == ERROR_NO_MORE_ITEMS)) {
+			return true;
+		}
 		if (status != ERROR_SUCCESS) {
 			return false;
 		}
-
 	}
 }
 
@@ -152,7 +153,7 @@ bool RAIIReigstryKey::WriteMultiWString(
 			ValueName,
 			REG_MULTI_SZ,
 			string.c_str(),
-			size);
+			(DWORD)size);
 	if (status == ERROR_SUCCESS) {
 		return true;
 	}
@@ -184,7 +185,7 @@ bool RAIIReigstryKey::ReadMultyStringValue(
 	const WCHAR* Name,
 	std::list<std::wstring>& Paths) {
 
-	DWORD size;
+	DWORD size = 0;
 	auto status = RegGetValueW(
 		m_Key, 
 		nullptr, 
@@ -211,7 +212,7 @@ bool RAIIReigstryKey::ReadMultyStringValue(
 	}
 
 	auto builder = std::wstringstream();
-	for (int i = 0; i < size / 2; i++) {
+	for (DWORD i = 0; i < size / 2; i++) {
 		if (buffer[i] != L'\0') {
 			builder << buffer[i];
 			continue;
@@ -227,7 +228,88 @@ bool RAIIReigstryKey::ReadMultyStringValue(
 	}
 
 	free(buffer);
+	return true;
 }
 
+bool RAIIReigstryKey::ReadValueDWORD(
+	_In_ const WCHAR* Name,
+	_Out_ DWORD& Dword) {
 
-#endif
+	bool res = true;
+	DWORD dword;
+
+	do {
+		DWORD size = sizeof(DWORD);
+		auto status =
+			RegGetValueW(
+				m_Key,
+				nullptr,
+				Name,
+				RRF_RT_REG_DWORD,
+				0,
+				&dword,
+				&size);
+		if (status != ERROR_SUCCESS) {
+			res = false;
+			break;
+		}
+
+		Dword = dword;
+
+	} while (false);
+	
+	return res;
+
+}
+bool RAIIReigstryKey::ReadValueQWORD(
+	_In_ const WCHAR* Name,
+	_Out_ DWORD64& Dword) {
+
+	DWORD64 qword;
+	bool res = true;
+	do {
+		DWORD size = sizeof(DWORD64);
+		auto status =
+			RegGetValueW(
+				m_Key,
+				nullptr,
+				Name,
+				RRF_RT_REG_QWORD,
+				0,
+				&qword,
+				&size);
+		if (status != ERROR_SUCCESS) {
+			res = false;
+			break;
+		}
+
+		Dword = qword;
+	} while (false);
+
+	return res;
+}
+
+bool RAIIReigstryKey::ReadValue(
+	_In_ const WCHAR* Name,
+	_Out_ char* Buffer,
+	_Inout_ DWORD& Size) {
+
+	bool res = true;
+	do {
+		auto status =
+			RegGetValueW(
+				m_Key,
+				nullptr,
+				Name,
+				RRF_RT_REG_BINARY,
+				0,
+				Buffer,
+				&Size);
+		if (status != ERROR_SUCCESS) {
+			res = false;
+			break;
+		}
+	} while (false);
+
+	return res;
+}

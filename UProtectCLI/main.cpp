@@ -1,15 +1,12 @@
-#include <iostream>
-#include <string>
-
-#include "..\Log\Log.h"
-#include "..\KProtectDll\include\KProtectDll.h"
-#include "..\Common\Common.h"
-
-#pragma comment(lib, "KProtectDll.lib")
+#include "CLI.h"
 
 int main() {
+	auto app = CLI();
+	app.Run();
+}
 
-
+/*
+int main() {
 	bool res =
 		InitKProtectInteface();
 
@@ -84,56 +81,21 @@ int main() {
 
 				std::wcout
 					<< Log::Green
-					<< "Apply reg paths" << std::endl;
+					<< L"Apply reg paths" << std::endl;
 				continue;
 
 			}
 
 			goto invalid_command;
 		}
-		else if (wcscmp(current, SAVE_COMMAND) == 0) {
-			current = wcstok_s(
-				nullptr,
-				DELIMITER,
-				&context);
-
-			if (wcscmp(current, REGISTRY) == 0) {
-				SaveBuildPaths();
-			}
-
-			std::wcout <<
-				Log::Green <<
-				"Save regitry paths build" << std::endl;
-			continue;
-
-
-		}
-		else if (wcscmp(current, LOAD_COMMAND) == 0) {
-			current = wcstok_s(
-				nullptr,
-				DELIMITER,
-				&context);
-
-			if (wcscmp(current, REGISTRY) == 0) {
-				bool res =
-					LoadRegBuildPaths();
-				if (res) {
-					std::wcout <<
-						Log::Green <<
-						"Load regitry paths" << std::endl;
-					continue;
-				}
-			}
-		}
 
 	invalid_command:
 		std::wcout
 			<< Log::Red
-			<< "\"" << command << "\" "
-			<< "Invalid command" << std::endl;
-
-
+			<< L"\"" << command << L"\" "
+			<< L"Invalid command" << std::endl;
 	}
 	return 0;
 
 }
+*/

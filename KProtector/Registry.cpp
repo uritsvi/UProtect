@@ -27,7 +27,7 @@ NTSTATUS RegistryBlocker::LoadAchoCorasickTrie() {
 		auto key =
 			RAIIReigstryKey(
 				nullptr,
-				L"\\Registry\\Machine\\Software\\UProtect\\REG",
+				DRIVER_REG_INFO_ROOT_PATH,
 				KEY_READ);
 
 		if (key.FailedToCreate()) {

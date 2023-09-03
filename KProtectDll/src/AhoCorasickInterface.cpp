@@ -7,24 +7,32 @@
 
 bool AhoCorasick::m_InitAhoCorasick;
 
-AhoCorasick::AhoCorasick(_In_ std::shared_ptr<RAIIReigstryKey> RootKey) {
-	m_RootKey = RootKey;
+AhoCorasick::AhoCorasick(
+	_In_ std::shared_ptr<RAIIReigstryKey> RootKey) {
 
-	if (m_InitAhoCorasick) {
+	if (!m_InitAhoCorasick) {
 		init_aho_corasick(
 			malloc,
 			free,
 			[](void* dest, const void* src, size_t count)
 			{ memcpy_s(dest, count, src, count); }
 		);
-		
+
 		m_InitAhoCorasick = true;
 	}
 
-	CreateOrReadAllSubKeys(RootKey);
+	m_RootKey = RootKey;
 
+	m_BuildTrie =
+		std::make_shared<BuildTrieEntry>();
 }
 AhoCorasick::~AhoCorasick() {
+}
+
+bool AhoCorasick::Init(_In_ bool LoadBuildPaths) {
+	return CreateOrReadAllSubKeys(
+		LoadBuildPaths
+	);
 }
 
 bool AhoCorasick::Save() {
@@ -44,14 +52,26 @@ bool AhoCorasick::SavePaths() {
 		HKEY_LOCAL_MACHINE,
 		REG_BUILD_PATHS,
 		KEY_ALL_ACCESS,
-		true);
+		FALSE);
 
 	if (key.FailedToCreate()) {
+		
+		key = RAIIReigstryKey(
+			HKEY_LOCAL_MACHINE,
+			REG_BUILD_PATHS,
+			KEY_ALL_ACCESS,
+			TRUE);
+		if (key.FailedToCreate()) {
+			return false;
+		}
+	}
+
+	bool res = key.DeleteAllValue();
+	if (!res) {
 		return false;
 	}
 
-
-	bool res = key.WriteMultiWString(
+	res = key.WriteMultiWString(
 		ALL_PATHS_MULTI_STRING_VALUE_NAME,
 		m_AllPaths
 	);
@@ -59,8 +79,34 @@ bool AhoCorasick::SavePaths() {
 		return false;
 	}
 
-
 	return true;
+}
+
+bool AhoCorasick::SaveRange(
+	_In_ std::shared_ptr<RAIIReigstryKey> Key,
+	_In_ WCharRange& Range
+) {
+	DWORD64 range = Range.Max;
+	range = (range << 32);
+	range += Range.Min;
+
+	BOOL res =
+		m_RootKey->WriteValueQWORD(
+			REG_TRIE_WCHAR_RANGE_VALUE_NAME,
+			range);
+
+	return res;
+}
+bool AhoCorasick::SaveSize(
+	_In_ std::shared_ptr<RAIIReigstryKey> Key,
+	_In_ int Size
+) {
+
+	bool res = m_RootKey->WriteValueDWORD(
+		REG_TRIE_SIZE_VALUE_NAME,
+		Size);
+	
+	return res;
 }
 
 bool AhoCorasick::SaveTrie() {
@@ -71,8 +117,13 @@ bool AhoCorasick::SaveTrie() {
 	bool res = true;
 
 	do {
+		bool res = 
+			m_RootKey->DeleteAllValue();
+		if (!res) {
+			break;
+		}
 
-		bool res = MakeTrie(
+		res = MakeTrie(
 			m_AllPaths, 
 			&finalTrie, 
 			&size,
@@ -81,31 +132,6 @@ bool AhoCorasick::SaveTrie() {
 			res = false;
 			break;
 		}
-
-		m_RootKey->DeleteAllValue();
-
-		res = m_RootKey->WriteValueDWORD(
-			REG_TRIE_SIZE_VALUE_NAME,
-			size);
-		if (!res) {
-			res = false;
-			break;
-		}
-
-		DWORD64 range = wcRange.Max;
-		range = (range << 32);
-		range += wcRange.Min;
-
-		res =
-			m_RootKey->WriteValueQWORD(
-				REG_TRIE_WCHAR_RANGE_VALUE_NAME,
-				range);
-
-		if (!res) {
-			res = false;
-			break;
-		}
-
 
 		int c = 0;
 		for (int i = 0; i < size; i += DEFAULT_BUFFER_SIZE) {
@@ -121,10 +147,18 @@ bool AhoCorasick::SaveTrie() {
 
 		}
 
+		res = SaveRange(m_RootKey, wcRange);
+		if (!res) {
+			break;
+		}
+		res = SaveSize(m_RootKey, size);
+		if (!res) {
+			break;
+		}
+
 	} while (false);
 
 	return res;
-
 }
 bool AhoCorasick::MakeTrie(
 	_In_ std::list<std::wstring> Paths,
@@ -136,8 +170,6 @@ bool AhoCorasick::MakeTrie(
 		return false;
 	}
 
-	m_BuildTrie = { 0 };
-
 	make_wchar_range(&Range);
 	
 	int finalNumOfTries = 0;
@@ -145,7 +177,6 @@ bool AhoCorasick::MakeTrie(
 		int numOfTries;
 		add_leaves(
 			path.c_str(), 
-			1, 
 			m_BuildTrie.get(),
 			&numOfTries, 
 			&Range);
@@ -163,14 +194,15 @@ bool AhoCorasick::MakeTrie(
 	return true;
 }
 
-void AhoCorasick::CreateOrReadAllSubKeys(_In_ std::shared_ptr<RAIIReigstryKey> RootKey) {
-	ReadBuildPaths(RootKey);
+bool AhoCorasick::AddPath(_In_ std::wstring Path) {
+	m_AllPaths.push_back(Path);
+	return true;
 }
 
-void AhoCorasick::ReadBuildPaths(_In_ std::shared_ptr<RAIIReigstryKey> RootKey) {
+bool AhoCorasick::CreateOrOpenBuiledPathsRegKey() {
 	m_AllPathsRegKey =
 		std::make_shared<RAIIReigstryKey>(
-			RootKey->GetHANDLE(),
+			m_RootKey->GetHANDLE(),
 			ALL_PATHS_SUB_KEY,
 			KEY_ALL_ACCESS,
 			FALSE);
@@ -178,12 +210,37 @@ void AhoCorasick::ReadBuildPaths(_In_ std::shared_ptr<RAIIReigstryKey> RootKey) 
 	if (m_AllPathsRegKey->FailedToCreate()) {
 		m_AllPathsRegKey =
 			std::make_shared<RAIIReigstryKey>(
-				RootKey->GetHANDLE(),
+				m_RootKey->GetHANDLE(),
 				ALL_PATHS_SUB_KEY,
 				KEY_ALL_ACCESS,
 				TRUE);
-		return;
+		return false;
 	}
+	return true;
+}
+
+bool AhoCorasick::CreateOrReadAllSubKeys(
+	_In_ bool LoadBuiledPaths) {
+
+	bool res = true;
+	do {
+		res =
+			CreateOrOpenBuiledPathsRegKey();
+		if (!res) {
+			break;
+		}
+		if (!LoadBuiledPaths) {
+			m_AllPathsRegKey->DeleteAllValue();
+			break;
+		}
+		ReadBuildPaths();
+
+	} while (false);
+
+	return res;
+}
+
+void AhoCorasick::ReadBuildPaths() {
 
 	std::list<std::wstring> paths;
 	bool res = m_AllPathsRegKey->ReadMultyStringValue(
@@ -198,4 +255,71 @@ void AhoCorasick::ReadBuildPaths(_In_ std::shared_ptr<RAIIReigstryKey> RootKey) 
 	for (auto string : paths) {
 		m_AllPaths.push_back(string);
 	}
+}
+
+bool AhoCorasick::TestAhoCorsickMatch(
+	_In_ const WCHAR* Path,
+	_Out_ bool& Found) {
+
+	Found = false;
+
+	WCharRange wCharRange;
+	bool res = true;
+
+	do {
+
+		DWORD size;
+		DWORD64 range;
+
+		res = m_RootKey->ReadValueDWORD(
+			REG_TRIE_SIZE_VALUE_NAME,
+			size
+		);
+		if (!res) {
+			break;
+		}
+		res = m_RootKey->ReadValueQWORD(
+			REG_TRIE_WCHAR_RANGE_VALUE_NAME,
+			range
+		);
+		if (!res) {
+			break;
+		}
+
+		wCharRange.Min = (int)range;
+		wCharRange.Max = (range >> 32);
+
+		char* buffer = (char*)malloc(size);
+		int i = 0;
+		while (true) {
+			char* current = buffer + (i * DEFAULT_BUFFER_SIZE);
+
+			DWORD size = DEFAULT_BUFFER_SIZE;
+			res = m_RootKey->ReadValue(
+				std::to_wstring(i).c_str(),
+				current,
+				size
+			);
+			if (!res) {
+				break;
+			}
+
+			i++;
+		}
+
+		auto finalTrie =
+			reinterpret_cast<FinalTrieEntry*>(buffer);
+
+		MatchContext context = { 0};
+		Found = match(
+			finalTrie,
+			finalTrie,
+			Path,
+			&context,
+			&wCharRange);
+
+
+	} while (false);
+
+	return res;
 }

@@ -2,7 +2,7 @@
 #define __AHO__CORASICK__
 
 #include <sal.h>
-#include <stdbool.h>
+//#include <stdbool.h>
 
 #include "..\..\AhoCorasickWithDump-CPP\include\list.h"
 #include "..\..\AhoCorasickWithDump-CPP\include\lib.h"
@@ -65,7 +65,6 @@ void init_aho_corasick(
 
 void add_leaves(
 	_In_ const wchar_t* Words,
-	_In_ int NumWords,
 	_Inout_ BuildTrieEntry* TrieEntry,
 	_Out_ int* NumOfTries,
 	_Out_ WCharRange* Range);

@@ -11,13 +11,20 @@
 class Registry {
 	
 public:
-	bool Protect(std::wstring Key);
-	bool Apply();
-	bool Save();
-	bool Load();
+	Registry();
+	~Registry();
 
+	bool Init();
+
+	bool Protect(_In_ std::wstring Key);
+	bool Apply();
+
+	bool TestAhoCorsickMatch(
+		_In_ const WCHAR* Path, 
+		_Out_ bool& Found
+	);
 
 private:
-
+	std::shared_ptr<AhoCorasick> m_AhoCorasick;
 };
 

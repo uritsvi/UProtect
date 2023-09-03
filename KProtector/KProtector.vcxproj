@@ -135,9 +135,9 @@
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\hash_table.h" />
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\lib.h" />
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\list.h" />
-    <ClInclude Include="..\KProtectDll\include\RAIIRegistry.h" />
     <ClInclude Include="Driver.h" />
     <ClInclude Include="MiniFilter.h" />
+    <ClInclude Include="RAIIRegistry.h" />
     <ClInclude Include="Registry.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

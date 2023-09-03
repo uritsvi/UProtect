@@ -6,18 +6,35 @@
 #include "..\include\Registry.h"
 #include "..\..\Common\Common.h"
 
-bool InitKProtectInteface() {
-	return true;
+std::shared_ptr<Registry> g_Registry;
+
+bool InitKProtectInteface() {	
+	bool res = true;
+
+	do {
+		g_Registry =
+			std::make_shared<Registry>();
+
+		bool res =
+			g_Registry->Init();
+		if (!res) {
+			break;
+		}
+	} while (false);
+
+	return res;
 }
-bool AddRegistryPathToProtect(const PWCHAR Path) {
-	return true;
+bool AddRegistryPathToProtect(_In_ const PWCHAR Path) {
+	return g_Registry->Protect(Path);
 }
 bool ApplayRegistryPaths() {
-	return true;
+	return g_Registry->Apply();
 }
-bool SaveBuildPaths() {
-	return true;
-}
-bool LoadRegBuildPaths() {
-	return true;
+bool TestMatchRegistry(
+	_In_ const PWCHAR Path,
+	_Out_ bool& Found) {
+	return g_Registry->TestAhoCorsickMatch(
+		Path, 
+		Found
+	);
 }

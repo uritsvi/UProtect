@@ -28,8 +28,8 @@ typedef struct{
     BuildTrieEntry* TrieEntry;
 } MapValue;
 
-static int make_range_size(_In_ WCharRange* Range) {
-    return (sizeof(FinalTrieEntry) +
+static int calc_node_size(_In_ WCharRange* Range) {
+      return (sizeof(FinalTrieEntry) +
         ((Range->Max - Range->Min + 1) * sizeof(Leaves)));
 }
 
@@ -212,12 +212,10 @@ void init_aho_corasick(
 */
 void add_leaves(
     _In_ const wchar_t* Words,
-    _In_ int NumWords,
     _Inout_ BuildTrieEntry* TrieEntry,
     _Out_ int* NumOfTries,
     _Out_ WCharRange* WCharRange){
 
-    (NumWords);
 
     *NumOfTries = 0;
 
@@ -287,7 +285,7 @@ static void convert_node_to_final(
 
     int range_size= 
         (Range->Max - Range->Min);
-    int entry_size = make_range_size(Range);
+    int entry_size = calc_node_size(Range);
 
     FinalTrieEntry* entry = 
        (FinalTrieEntry*)(
@@ -347,7 +345,7 @@ void make_final_trie(
     }
 
     *BufferSize =
-        NumOfNodes * make_range_size(WCharRange);
+        NumOfNodes * calc_node_size(WCharRange);
     
     *FinalEntry = 
         reinterpret_cast<FinalTrieEntry*>(lib_malloc(*BufferSize));
@@ -377,7 +375,7 @@ bool match(
         return false;
     }
     int entry_size =
-        make_range_size(WCharRange);
+        calc_node_size(WCharRange);
 
     if (Entry == nullptr) {
         return false;
