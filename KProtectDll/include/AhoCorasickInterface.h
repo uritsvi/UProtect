@@ -57,7 +57,6 @@ private:
 
 private:
 	std::shared_ptr<RAIIReigstryKey> m_AllPathsRegKey;
-	//std::shared_ptr<RAIIReigstryKey> m_TrieRegKey;
 	std::shared_ptr<RAIIReigstryKey> m_RootKey;
 
 	std::shared_ptr<BuildTrieEntry> m_BuildTrie;

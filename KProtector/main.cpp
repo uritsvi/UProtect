@@ -144,6 +144,7 @@ extern "C" NTSTATUS DriverEntry(
 			CleanUp(Driver);
 			break;
 		}
+		g_Registry->Init();
 
 		g_Filter = new (POOL_FLAG_PAGED, DRIVER_TAG)MiniFilter();
 		status = g_Filter->Init(

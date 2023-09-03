@@ -23,10 +23,11 @@ Registry::~Registry() {
 
 bool Registry::Init() {
 	bool loadBuiledPaths = true;
+
 #ifdef _DEBUG
 	loadBuiledPaths = false;
 #endif
-	
+
 	return m_AhoCorasick->Init(loadBuiledPaths);
 }
 

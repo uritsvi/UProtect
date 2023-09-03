@@ -51,10 +51,11 @@ FLT_PREOP_CALLBACK_STATUS PreCreateCallback(
 	auto params = Data->Iopb->Parameters.Create;
 	if (params.Options & FILE_DELETE_ON_CLOSE) {
 		
+		
 		/*
 		auto fileName =
 			&FltObjects->FileObject->FileName;
-			*/
+		*/
 
 		// TODO: Check if delete is allowed
 	}
@@ -97,7 +98,6 @@ FLT_PREOP_CALLBACK_STATUS PreSetInfoCallback(
 				KdPrint(("Failed to get file name"));
 				return finalStatus;
 			}
-
 
 
 
@@ -231,6 +231,7 @@ NTSTATUS MiniFilter::Init(
 	auto status = InitMiniFilter(
 		Driver);
 
+	
 	return status;
 
 }

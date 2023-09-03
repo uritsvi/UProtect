@@ -1,112 +1,10 @@
 #include "..\Common\Common.h"
 
-
 #include "Registry.h"
 #include "RAIIRegistry.h"
 #include "..\KTL\include\KTLMemory.hpp"
 
-/*
-* I include this file last becaus it is dependent on 
-* ntddk.h witch should be included first
-*/
-#include <ntstrsafe.h>
-
-#define NUM_OF_CHARS_FOR_SIZE 6
 #define MAX_REG_PATH 256
-
-struct ReadChuk {
-	KEY_VALUE_PARTIAL_INFORMATION Info;
-	char Data[DEFAULT_BUFFER_SIZE];
-};
-
-
-
-NTSTATUS RegistryBlocker::LoadAchoCorasickTrie() {
-	
-	NTSTATUS status = STATUS_SUCCESS;
-		auto key =
-			RAIIReigstryKey(
-				nullptr,
-				DRIVER_REG_INFO_ROOT_PATH,
-				KEY_READ);
-
-		if (key.FailedToCreate()) {
-			KdPrint(("Failed to open reg key"));
-			status = STATUS_NOT_FOUND;
-			goto end;
-		}
-
-		KdPrint(("Successfuly opened a reg key"));
-
-		int size;
-		bool res =
-			key.ReadValueDWORD(
-				REG_TRIE_SIZE_VALUE_NAME, 
-				&size);
-
-		if (!res) {
-			KdPrint(("Failed to read trie size"));
-			status = STATUS_NOT_FOUND;
-			goto end;
-		}
-
-		LONG_PTR range;
-		res =
-			key.ReadValueQWORD(
-				REG_TRIE_WCHAR_RANGE_VALUE_NAME, 
-				&range);
-		if (!res) {
-			KdPrint(("Failed to read trie range"));
-			status = STATUS_NOT_FOUND;
-			goto end;
-		}
-
-		m_WCharRange.Min = (int)range;
-		m_WCharRange.Max = (range >> 32);
-
-		KdPrint(("Trie size:%d", size));
-
-		m_BlockTrie = (FinalTrieEntry*)ExAllocatePool2(
-			POOL_FLAG_PAGED, 
-			size, 
-			DRIVER_TAG);
-		if (m_BlockTrie == nullptr) {
-			status = STATUS_NO_MEMORY;
-			goto end;
-		}
-
-		int c = 0;
-		for (int i = 0; i < size; i += DEFAULT_BUFFER_SIZE) {
-			wchar_t Name[NUM_OF_CHARS_FOR_SIZE] = {0};
-			status = RtlStringCbPrintfW(
-				Name, 
-				sizeof(Name), 
-				L"%d", 
-				c++);
-			if (!NT_SUCCESS(status)) {
-				KdPrint(("Failed to convert a decimal to a string"));
-				goto end;
-			}
-
-			ReadChuk chunk;
-			res = key.ReadValue(
-				Name, 
-				&chunk.Info,
-				sizeof(chunk));
-			if (!res) {
-				status = STATUS_REGISTRY_IO_FAILED;
-				goto end;
-			}
-
-			memcpy(
-				((char*)m_BlockTrie + i),
-				chunk.Info.Data, 
-				chunk.Info.DataLength);
-		}
-
-end:
-	return status;
-}
 
 NTSTATUS RegistryCallback(
 	_In_ PVOID CallbackContext,
@@ -122,7 +20,6 @@ NTSTATUS RegistryCallback(
 
 }
 
-
 NTSTATUS RegistryBlocker::CreateRegistryBlocker(_Out_ RegistryBlocker **Blocker) {
 	NTSTATUS status = STATUS_SUCCESS;
 
@@ -135,7 +32,6 @@ NTSTATUS RegistryBlocker::CreateRegistryBlocker(_Out_ RegistryBlocker **Blocker)
 		auto out = 
 			new (POOL_FLAG_PAGED, DRIVER_TAG)RegistryBlocker();
 
-		status =  out->LoadAchoCorasickTrie();
 		if (!NT_SUCCESS(status)) {
 			break;
 		}
@@ -150,12 +46,16 @@ NTSTATUS RegistryBlocker::CreateRegistryBlocker(_Out_ RegistryBlocker **Blocker)
 
 RegistryBlocker::RegistryBlocker() {
 	m_Cookie = { 0 };
-	m_BlockTrie = { 0 };
+	m_AhoCorasickInterface = AhoCorasickInterface();
 }
+
+bool RegistryBlocker::Init() {
+	return m_AhoCorasickInterface.Init(DRIVER_REG_INFO_ROOT_PATH);
+}
+
 
 RegistryBlocker::~RegistryBlocker() {
 	CmUnRegisterCallback(m_Cookie);
-	delete m_BlockTrie;
 }
 
 void RegistryBlocker::StartProtect() {
@@ -209,12 +109,7 @@ NTSTATUS RegistryBlocker::SelfRegistryCallback(
 				CmCallbackReleaseKeyObjectIDEx(name);
 
 				MatchContext context = {0};
-				if (match(
-					m_BlockTrie,
-					m_BlockTrie,
-					keyName,
-					&context,
-					&m_WCharRange)) {
+				if (m_AhoCorasickInterface.Match((const WCHAR*)keyName)) {
 
 					KdPrint(("Blocked key %wZ", name));
 

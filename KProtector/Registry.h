@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Driver.h"
-#include "..\AhoCorasickWithDump-CPP\include\aho_corasick.h"
+#include "AhoCorasickInterface.h"
 
 class RegistryBlocker
 {
@@ -9,6 +9,8 @@ public:
 	static NTSTATUS CreateRegistryBlocker
 		(_Out_ RegistryBlocker** RegistryBlocker);
 	
+	bool Init();
+
 	RegistryBlocker();
 	~RegistryBlocker();
 
@@ -19,12 +21,10 @@ public:
 		_In_opt_ PVOID Argument2);
 
 private:
-	NTSTATUS LoadAchoCorasickTrie();
-
-private:
 	LARGE_INTEGER m_Cookie;
-
-	FinalTrieEntry* m_BlockTrie;
-	WCharRange m_WCharRange;
+	AhoCorasickInterface m_AhoCorasickInterface;
+	
+	//FinalTrieEntry* m_BlockTrie;
+	//WCharRange m_WCharRange;
 };
 
