@@ -148,6 +148,7 @@
     <ClCompile Include="..\AhoCorasickWithDump-CPP\src\lib.cpp" />
     <ClCompile Include="..\AhoCorasickWithDump-CPP\src\list.cpp" />
     <ClCompile Include="src\AhoCorasickInterface.cpp" />
+    <ClCompile Include="src\FilePaths.cpp" />
     <ClCompile Include="src\KProtectDll.cpp" />
     <ClCompile Include="src\RAIIRegistry.cpp" />
     <ClCompile Include="src\Registry.cpp" />
@@ -158,6 +159,8 @@
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\lib.h" />
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\list.h" />
     <ClInclude Include="include\AhoCorasickInterface.h" />
+    <ClInclude Include="include\FilePaths.h" />
+    <ClInclude Include="include\IProtect.h" />
     <ClInclude Include="include\KProtectDll.h" />
     <ClInclude Include="include\RAIIRegistry.h" />
     <ClInclude Include="include\Registry.h" />

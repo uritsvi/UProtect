@@ -10,6 +10,7 @@
 enum class CommandTarget {
 	Undefined,
 	Reg,
+	FilePath,
 };
 
 class Command {

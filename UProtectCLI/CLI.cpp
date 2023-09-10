@@ -18,6 +18,9 @@
 void CLI::Run() {
 	bool res =
 		InitKProtectInteface();
+	if (!res) {
+		return;
+	}
 
 	while (true) {
 		std::wcout << Log::White << ENTER_COMMAND;

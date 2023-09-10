@@ -70,6 +70,44 @@ void RegistryBlocker::StartProtect() {
 	}
 }
 
+NTSTATUS RegistryBlocker::AllowToModify(_In_ PVOID Object) {
+	PCUNICODE_STRING name;
+	NTSTATUS status;
+
+	do {
+		status =
+			CmCallbackGetKeyObjectIDEx(
+				&m_Cookie,
+				Object,
+				nullptr,
+				&name,
+				0);
+		if (!NT_SUCCESS(status)) {
+			KdPrint(("Error in getting key name"));
+			break;
+		}
+
+
+		
+
+
+
+		MatchContext context = { 0 };
+		if (m_AhoCorasickInterface.Match((UNICODE_STRING*)name)) {
+
+			KdPrint(("Blocked key %wZ", name));
+
+			status = STATUS_ACCESS_DENIED;
+		}
+
+		CmCallbackReleaseKeyObjectIDEx(name);
+
+
+	} while (false);
+
+	return status;
+}
+
 NTSTATUS RegistryBlocker::SelfRegistryCallback(
 	_In_opt_ PVOID Argument1,
 	_In_opt_ PVOID Argument2) {
@@ -80,45 +118,36 @@ NTSTATUS RegistryBlocker::SelfRegistryCallback(
 
 	NTSTATUS status = STATUS_SUCCESS;
 
+	PVOID object = { 0 };
+	switch ((REG_NOTIFY_CLASS)(ULONG_PTR)Argument1)
+	{
+	case RegNtPreDeleteValueKey: {
+		auto params =
+			reinterpret_cast<REG_DELETE_VALUE_KEY_INFORMATION*>(Argument2);
+		object = params->Object;
+	}break;
 
-	
-		switch ((REG_NOTIFY_CLASS)(ULONG_PTR)Argument1)
-		{
-			case RegNtPreDeleteValueKey: {
-				auto params =
-					reinterpret_cast<REG_DELETE_VALUE_KEY_INFORMATION*>(Argument2);
+	case RegNtPreRenameKey: {
+		auto params =
+			reinterpret_cast<REG_RENAME_KEY_INFORMATION*>(Argument2);
+		object = params->Object;
+	}break;
 
+	case RegNtPreSetValueKey: {
 
-				PCUNICODE_STRING name;
+		auto params =
+			reinterpret_cast<REG_SET_VALUE_KEY_INFORMATION*>(Argument2);
+		object = params->Object;
+	}
 
-				status = 
-					CmCallbackGetKeyObjectIDEx(
-						&m_Cookie, 
-						params->Object, 
-						nullptr, 
-						&name, 
-						0);
-				if (!NT_SUCCESS(status)) {
-					KdPrint(("Error in getting key name"));
-					break;
-				}
-
-				WCHAR keyName[MAX_REG_PATH] = {0};
-				memcpy(keyName, name->Buffer, name->Length);
-
-				CmCallbackReleaseKeyObjectIDEx(name);
-
-				MatchContext context = {0};
-				if (m_AhoCorasickInterface.Match((const WCHAR*)keyName)) {
-
-					KdPrint(("Blocked key %wZ", name));
-
-					return STATUS_ACCESS_DENIED;
-				}
-
-			}break;
-		}
-		
-	
+	case RegNtDeleteKey: {
+		auto params =
+			reinterpret_cast<REG_DELETE_KEY_INFORMATION*>(Argument2);
+		object = params->Object;
+	}break;
+	}
+	if (object != nullptr) {
+		status = AllowToModify(object);
+	}
 	return status;
 }

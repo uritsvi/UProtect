@@ -2,9 +2,13 @@
 
 // Registry keys
 #define REG_INFO_ROOT_PATH L"SOFTWARE\\UProtect\\REG"
-#define REG_BUILD_PATHS L"SOFTWARE\\UProtect\\REG\\Build"
+#define MINIFILTER_INFO_ROOT_PATH L"SOFTWARE\\UProtect\\MINIFILTER"
+
+//#define MINIFILTER_BUILD_PATHS L"SOFTWARE\\UProtect\\REG\\Build"
+//#define MINIFILTER_BUILED_PATH L"SOFTWARE\\UProtect\\MINIFILTER\\Build"
 
 #define DRIVER_REG_INFO_ROOT_PATH L"\\Registry\\Machine\\Software\\UProtect\\REG"
+#define DRIVER_MINI_FILTER_INFO_ROOT_PATH L"\\Registry\\Machine\\Software\\UProtect\\MINIFILTER"
 
 #define REG_TRIE_SIZE_VALUE_NAME L"Size"
 #define REG_TRIE_WCHAR_RANGE_VALUE_NAME L"Range"

@@ -9,6 +9,7 @@
 #define TEST_COMMAND L"test"
 
 #define REGISTRY L"reg"
+#define FILE_PATH L"path"
 
 Commands& Commands::GetInstance() {
 	static auto instance = Commands();
@@ -23,6 +24,7 @@ Commands::Commands() {
 	m_Commands[TEST_COMMAND] = std::make_shared<TestCommand>();
 
 	m_Targets[REGISTRY] = CommandTarget::Reg;
+	m_Targets[FILE_PATH] = CommandTarget::FilePath;
 }
 Commands::~Commands() {
 }
@@ -62,7 +64,9 @@ bool ApplyCommand::Execute(
 
 	switch(Target) {
 		case CommandTarget::Reg: 
-			res = ApplayRegistryPaths();break;
+			res = ApplyRegistryPaths();break;
+		case CommandTarget::FilePath:
+			res = ApplyFilePaths(); break;
 	}
 	Msg = SUCCESSFULY_APPLYED_PATHS;
 	return res;
@@ -84,6 +88,8 @@ bool ProtectCommand::Execute(
 	switch(Target) {
 		case CommandTarget::Reg: 
 			res = AddRegistryPathToProtect((PWCHAR)Extra); break;
+		case CommandTarget::FilePath:
+			res = AddFilePathToProtect((PWCHAR)Extra);
 	}
 	Msg = SUCCESSFULY_PROTECT_PATHS; 
 	return res;
@@ -105,11 +111,16 @@ bool TestCommand::Execute(
 	bool match = false;
 
 	switch (Target) {
-	case CommandTarget::Reg:
-		res = TestMatchRegistry(
-			(PWCHAR)Extra, 
-			match
-		);
+		case CommandTarget::Reg:
+			res = TestMatchRegistry(
+				(PWCHAR)Extra, 
+				match
+			);
+		case CommandTarget::FilePath:
+			res = TestMatchFilePath(
+				(PWCHAR)Extra,
+				match
+			);
 	}
 	if (match) {
 		Msg = SUCCESS_TEST_PATHS;
@@ -123,3 +134,4 @@ bool TestCommand::Execute(
 bool TestCommand::IsDefinedCommand() {
 	return true;
 }
+

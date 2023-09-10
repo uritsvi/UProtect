@@ -7,6 +7,8 @@
 */
 #include <ntstrsafe.h>
 
+FAST_MUTEX mutex;
+
 #define NUM_OF_CHARS_FOR_SIZE 6
 
 struct ReadChuk {
@@ -103,33 +105,44 @@ end:
 
 AhoCorasickInterface::AhoCorasickInterface() {
 	m_BlockTrie = nullptr;
-	m_RootKey = nullptr;
 	m_WCharRange = { 0 };
+
+	ExInitializeFastMutex(&mutex);
 }
 AhoCorasickInterface::~AhoCorasickInterface() {
 	if (m_BlockTrie) {
 		delete m_BlockTrie;
 	}
-	if (m_RootKey) {
-		delete m_RootKey;
-	}
 }
 
 bool AhoCorasickInterface::Init(_In_ const WCHAR* RootKey) {
-	return LoadAchoCorasickTrie(RootKey);
+	if (NT_SUCCESS(LoadAchoCorasickTrie(RootKey))) {
+		return true;
+	}
+	return false;
 }
 
-bool AhoCorasickInterface::Match(_In_ const WCHAR* Path) {
+bool AhoCorasickInterface::Match(_In_ UNICODE_STRING* Path) {
+
 	if (m_BlockTrie == nullptr) {
 		KdPrint(("Try calling Match() while aho corasick trie is null"));
 		return false;
 	}
 
+	WCharRange range = m_WCharRange;
+
 	MatchContext context = {0};
-	return match(
+	bool res =  match(
 		m_BlockTrie, 
 		m_BlockTrie, 
-		Path, 
+		Path->Buffer,
+		Path->Length / 2,
 		&context, 
-		&m_WCharRange);
+		&range);
+
+
+
+
+	return res;
+
 }

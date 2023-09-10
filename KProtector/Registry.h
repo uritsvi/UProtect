@@ -16,6 +16,8 @@ public:
 
 	void StartProtect();
 
+	NTSTATUS AllowToModify(_In_ PVOID Object);
+
 	NTSTATUS SelfRegistryCallback(
 		_In_opt_ PVOID Argument1,
 		_In_opt_ PVOID Argument2);

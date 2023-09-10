@@ -80,6 +80,7 @@ bool match(
 	_In_ FinalTrieEntry* BaseAddr,
 	_In_ FinalTrieEntry* Entry,
 	_In_ const wchar_t* Str,
+	_In_ int Len,
 	_In_ MatchContext* Context,
 	_In_ WCharRange* WCRange);
 

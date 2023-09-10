@@ -368,73 +368,64 @@ bool match(
     _In_ FinalTrieEntry* BaseAddr,
 	_In_ FinalTrieEntry* Entry,
 	_In_ const wchar_t* Str,
+    _In_ int Len,
     _In_ MatchContext* Context,
     _In_ WCharRange* WCharRange) {
-    
-    if (WCharRange == nullptr) {
-        return false;
-    }
-    int entry_size =
-        calc_node_size(WCharRange);
 
-    if (Entry == nullptr) {
-        return false;
-    }
-    
-    size_t len = wcslen(Str);
-    if (Context->I == len || Entry == NULL) {
-        return false;
-    }
-
-    int next_index = INT_NULL_VALUE;
-    if (Str[Context->I] >= WCharRange->Min &&
-        Str[Context->I] <= WCharRange->Max)
+    while (true)
     {
-        next_index = Entry->Leaves[Str[Context->I] - WCharRange->Min];
-    }
-    
-    
-
-    FinalTrieEntry* next;
-    
-    
-    if (next_index >= 0) {
-
-        next = 
-            (FinalTrieEntry*)(
-                (char*)BaseAddr + (next_index * entry_size));
-
-        if (next->OutputNode == true) {
-            return true;
+        if (Context->I >= Len || Entry == nullptr || WCharRange == nullptr) {
+            return false;
         }
 
-        Context->I++;
+        int entry_size =
+            calc_node_size(WCharRange);
 
-    }
-    else {
-        next_index =
-            Entry->FailureLink;
-        next =
-            (FinalTrieEntry*)(
-                (char*)BaseAddr + 
-                (next_index * entry_size));
+        if (Entry == nullptr) {
+            return false;
+        }
 
-        if (Entry->Root) {
+        int next_index = INT_NULL_VALUE;
+        if (Str[Context->I] >= WCharRange->Min &&
+            Str[Context->I] <= WCharRange->Max)
+        {
+            next_index = Entry->Leaves[Str[Context->I] - WCharRange->Min];
+        }
+
+        FinalTrieEntry* next;
+
+
+        if (next_index >= 0) {
+
+            next =
+                (FinalTrieEntry*)(
+                    (char*)BaseAddr + (next_index * entry_size));
+
+            if (next->OutputNode == true) {
+                return true;
+            }
 
             Context->I++;
-            next = Entry;
+
         }
+        else {
+            next_index =
+                Entry->FailureLink;
+            next =
+                (FinalTrieEntry*)(
+                    (char*)BaseAddr +
+                    (next_index * entry_size));
+
+            if (Entry->Root) {
+
+                Context->I++;
+                next = Entry;
+            }
+        }
+        
+        Entry = next;
+
     }
-
-    bool res = match(
-        BaseAddr,
-        next,
-        Str,
-        Context,
-        WCharRange);
-
-	return res;
-   
 }
 
 void make_wchar_range(_Out_ WCharRange* WCharRange) {

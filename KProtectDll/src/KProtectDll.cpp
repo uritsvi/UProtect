@@ -4,36 +4,53 @@
 #include "..\..\Log\Log.h"
 #include "..\..\AhoCorasickWithDump-CPP\include\aho_corasick.h"
 #include "..\include\Registry.h"
+#include "..\include\FilePaths.h"
 #include "..\..\Common\Common.h"
 
-std::shared_ptr<Registry> g_Registry;
+Registry g_Registry;
+FilePaths g_FilePaths;
 
 bool InitKProtectInteface() {	
 	bool res = true;
 
 	do {
-		g_Registry =
-			std::make_shared<Registry>();
-
-		bool res =
-			g_Registry->Init();
+		res =
+			g_Registry.Init();
 		if (!res) {
 			break;
 		}
+		res =
+			g_FilePaths.Init();
 	} while (false);
 
 	return res;
 }
 bool AddRegistryPathToProtect(_In_ const PWCHAR Path) {
-	return g_Registry->Protect(Path);
+	return g_Registry.Protect(Path);
 }
-bool ApplayRegistryPaths() {
-	return g_Registry->Apply();
+bool ApplyRegistryPaths() {
+	return g_Registry.Apply();
 }
 bool TestMatchRegistry(
 	_In_ const PWCHAR Path,
 	_Out_ bool& Found) {
-	return g_Registry->TestAhoCorsickMatch(
+	return g_Registry.TestAhoCorsickMatch(
+		Path, 
+		Found
+	);
+}
+
+EXPORT bool AddFilePathToProtect(_In_ const PWCHAR Path) {
+	return g_FilePaths.Protect(Path);
+}
+EXPORT bool ApplyFilePaths() {
+	return g_FilePaths.Apply();
+}
+EXPORT bool TestMatchFilePath(
+	_In_ const PWCHAR Path,
+	_Out_ bool& Found) {
+	
+	return g_FilePaths.TestAhoCorsickMatch(
 		Path, 
 		Found
 	);

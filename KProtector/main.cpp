@@ -10,7 +10,6 @@
 #define SYM_LINK L"\\??\\KProtect"
 
 RegistryBlocker* g_Registry;
-MiniFilter* g_Filter;
 
 void CleanUp(_In_ DRIVER_OBJECT* Driver) {
 	/*
@@ -19,7 +18,7 @@ void CleanUp(_In_ DRIVER_OBJECT* Driver) {
 	}
 	*/
 
-	FltUnregisterFilter(g_Filter->m_Filter);
+	FltUnregisterFilter(MiniFilter::GetInstance()->m_Filter);
 	
 	if (Driver->DeviceObject != nullptr) {
 		UNICODE_STRING symLink = 
@@ -73,6 +72,7 @@ extern "C" NTSTATUS DriverEntry(
 	_In_ DRIVER_OBJECT * Driver, 
 	_In_ UNICODE_STRING * Registry) {
 	
+
 	UNREFERENCED_PARAMETER(Registry);
 
 	KdPrint(("Start"));
@@ -138,30 +138,35 @@ extern "C" NTSTATUS DriverEntry(
 			}
 		);
 
+		
 		status = 
 			RegistryBlocker::CreateRegistryBlocker(&g_Registry);
 		if (!NT_SUCCESS(status)) {
 			CleanUp(Driver);
 			break;
 		}
-		g_Registry->Init();
-
-		g_Filter = new (POOL_FLAG_PAGED, DRIVER_TAG)MiniFilter();
-		status = g_Filter->Init(
+		status = 
+			g_Registry->Init();
+		if (!NT_SUCCESS(status)) {
+			CleanUp(Driver);
+			break;
+		}
+	
+		status = MiniFilter::GetInstance()->Init(
 			Driver, 
 			Registry);
 		if (!NT_SUCCESS(status)) {
+			CleanUp(Driver);
 			KdPrint(("Failed to init mini filter"));
 			break;
 		}
 
 		status = 
-			g_Filter->StartProtect();
+			MiniFilter::GetInstance()->StartProtect();
 		if (!NT_SUCCESS(status)) {
 			KdPrint(("Failed to start filtering"));
 			break;
 		}
-
 		g_Registry->StartProtect();
 
 	} while (false);

@@ -10,13 +10,12 @@ public:
 	~AhoCorasickInterface();
 
 	bool Init(_In_ const WCHAR* RootKey);
-	bool Match(_In_ const WCHAR* Path);
+	bool Match(_In_ UNICODE_STRING* Path);
 
 private:
 	NTSTATUS LoadAchoCorasickTrie(_In_ const WCHAR* Path);
 
 private:
-	RAIIReigstryKey* m_RootKey;
 	FinalTrieEntry* m_BlockTrie;
 	WCharRange m_WCharRange;
 };

@@ -1,8 +1,10 @@
-
-
 #include "MiniFilter.h"
+#include "..\Common\Common.h"
+#include "..\KTL\include\KTLMemory.hpp"
 
 DRIVER_OBJECT* Object;
+
+MiniFilter* MiniFilter::m_Instance;
 
 void CleanUp(_In_ DRIVER_OBJECT* Driver);
 
@@ -43,23 +45,71 @@ FLT_PREOP_CALLBACK_STATUS PreCreateCallback(
 
 	FLT_PREOP_CALLBACK_STATUS status =
 		FLT_PREOP_SUCCESS_NO_CALLBACK;
+	
+	do {
+		if (Data->RequestorMode == KernelMode) {
+			return status;
+		}
 
-	if (Data->RequestorMode == KernelMode) {
-		return status;
-	}
+		auto params = Data->Iopb->Parameters.Create;
+		if (params.Options & FILE_DELETE_ON_CLOSE) {
 
-	auto params = Data->Iopb->Parameters.Create;
-	if (params.Options & FILE_DELETE_ON_CLOSE) {
-		
-		
-		/*
-		auto fileName =
-			&FltObjects->FileObject->FileName;
-		*/
 
-		// TODO: Check if delete is allowed
-	}
+			KdPrint(("Create\n"));
+
+			if (FltObjects->FileObject == nullptr) {
+				break;
+			}
+
+			auto fileName =
+				&FltObjects->FileObject->FileName;
+			if (!MiniFilter::GetInstance()->AllowToModify(fileName)) {
+				status = FLT_PREOP_COMPLETE;
+			}
+
+			// TODO: Check if delete is allowed
+		}
+	} while (false);
+
 	return status;
+}
+
+FLT_PREOP_CALLBACK_STATUS PreWriteCallback(
+	_Inout_ PFLT_CALLBACK_DATA Data,
+	_In_ PCFLT_RELATED_OBJECTS FltObjects,
+	_Outptr_result_maybenull_ PVOID* CompletionContext) {
+
+	UNREFERENCED_PARAMETER(CompletionContext);
+	UNREFERENCED_PARAMETER(FltObjects);
+
+
+	FLT_PREOP_CALLBACK_STATUS finalStatus =
+		FLT_PREOP_SUCCESS_NO_CALLBACK;
+
+	PFLT_FILE_NAME_INFORMATION fileNameInfo;
+	do {
+		NTSTATUS status = FltGetFileNameInformation(
+			Data,
+			FLT_FILE_NAME_QUERY_DEFAULT | FLT_FILE_NAME_NORMALIZED,
+			&fileNameInfo);
+		if (!NT_SUCCESS(status)) {
+			finalStatus = FLT_PREOP_COMPLETE;
+			break;
+		}
+
+		KdPrint(("Write\n"));
+		if (!MiniFilter::GetInstance()->AllowToModify(&fileNameInfo->Name)) {
+			Data->IoStatus.Status = STATUS_ACCESS_DENIED;
+			finalStatus = FLT_PREOP_COMPLETE;
+		}
+
+		FltReleaseFileNameInformation(fileNameInfo);
+
+
+	} while (false);
+
+	return finalStatus;
+
 }
 
 FLT_PREOP_CALLBACK_STATUS PreSetInfoCallback(
@@ -80,8 +130,9 @@ FLT_PREOP_CALLBACK_STATUS PreSetInfoCallback(
 	auto& params =
 		Data->Iopb->Parameters.SetFileInformation;
 
-	if (
-		params.FileInformationClass == FileDispositionInformation ||
+	do {
+
+	if (params.FileInformationClass == FileDispositionInformation ||
 		params.FileInformationClass == FileDispositionInformationEx) {
 
 		auto info =
@@ -89,24 +140,54 @@ FLT_PREOP_CALLBACK_STATUS PreSetInfoCallback(
 
 		PFLT_FILE_NAME_INFORMATION fileNameInfo;
 
-		if (info->DeleteFile) {
+		if (info->DeleteFile & 1) {
+			KdPrint(("Set Info\n"));
+
 			NTSTATUS status = FltGetFileNameInformation(
 				Data,
 				FLT_FILE_NAME_QUERY_DEFAULT | FLT_FILE_NAME_NORMALIZED,
 				&fileNameInfo);
 			if (!NT_SUCCESS(status)) {
 				KdPrint(("Failed to get file name"));
-				return finalStatus;
+				break;
 			}
 
 
-
-
 			// TODO: Check if delete is allowed
+			bool res = 
+				MiniFilter::GetInstance()->AllowToModify(&fileNameInfo->Name);
+			if (!res) {
+				Data->IoStatus.Status = STATUS_ACCESS_DENIED;
+				finalStatus = FLT_PREOP_COMPLETE;
+			}
 
 			FltReleaseFileNameInformation(fileNameInfo);
 		}
 	}
+	else if (params.FileInformationClass == FileRenameInformation ||
+			 params.FileInformationClass == FileRenameInformationEx) {
+		PFLT_FILE_NAME_INFORMATION fileNameInfo;
+
+			NTSTATUS status = FltGetFileNameInformation(
+				Data,
+				FLT_FILE_NAME_QUERY_DEFAULT | FLT_FILE_NAME_NORMALIZED,
+				&fileNameInfo);
+			if (!NT_SUCCESS(status)) {
+				KdPrint(("Failed to get file name"));
+				break;
+			}
+			// TODO: Check if rename is allowed
+			bool res =
+				MiniFilter::GetInstance()->AllowToModify(&fileNameInfo->Name);
+			if (!res) {
+				Data->IoStatus.Status = STATUS_ACCESS_DENIED;
+				finalStatus = FLT_PREOP_COMPLETE;
+			}
+
+
+	}
+	} while (false);
+
 
 	return finalStatus;
 }
@@ -137,8 +218,25 @@ void TeardownComplete(
 	UNREFERENCED_PARAMETER(Reason);
 }
 
+MiniFilter* MiniFilter::GetInstance() {
+	
+	if (m_Instance == nullptr) {
+		m_Instance = new(POOL_FLAG_PAGED, DRIVER_TAG)MiniFilter();
+	}
+
+	return m_Instance;
+}
+
+void MiniFilter::Delete() {
+
+}
+
 MiniFilter::~MiniFilter() {
-	//FltUnregisterFilter(m_Filter);
+	FltUnregisterFilter(m_Filter);
+}
+MiniFilter::MiniFilter() {
+	m_AhoCorasick = 
+		new (POOL_FLAG_PAGED, DRIVER_TAG)AhoCorasickInterface();
 }
 
 
@@ -182,6 +280,7 @@ void MiniFilter::tempInitRegistry(UNICODE_STRING* RegistryPath) {
 
 NTSTATUS MiniFilter::InitMiniFilter(DRIVER_OBJECT* Driver) {
 
+
 	NTSTATUS status = STATUS_SUCCESS;
 
 	do {
@@ -189,6 +288,7 @@ NTSTATUS MiniFilter::InitMiniFilter(DRIVER_OBJECT* Driver) {
 		FLT_OPERATION_REGISTRATION const callbacks[] = {
 			{IRP_MJ_CREATE, 0, PreCreateCallback , nullptr},
 			{IRP_MJ_SET_INFORMATION, 0, PreSetInfoCallback , nullptr},
+			{IRP_MJ_WRITE, 0, PreWriteCallback, nullptr},
 			{IRP_MJ_OPERATION_END},
 		};
 
@@ -213,8 +313,15 @@ NTSTATUS MiniFilter::InitMiniFilter(DRIVER_OBJECT* Driver) {
 		if (!NT_SUCCESS(status)) {
 			break;
 		}
+		bool res =
+			m_AhoCorasick->Init(DRIVER_MINI_FILTER_INFO_ROOT_PATH);
+		if (!res) {
+			status = STATUS_NOT_FOUND;
+		}
+
 
 	} while (false);
+
 
 	KdPrint(("Finish Init"));
 
@@ -235,10 +342,12 @@ NTSTATUS MiniFilter::Init(
 	return status;
 
 }
+
+bool MiniFilter::AllowToModify(_In_ UNICODE_STRING* Path) {
+	return !m_AhoCorasick->Match(Path);
+}
+
 NTSTATUS MiniFilter::StartProtect() {
 	return FltStartFiltering(m_Filter);
 }
 
-NTSTATUS MiniFilter::LoadAchoCorasickTrie() {
-	return STATUS_SUCCESS;
-}

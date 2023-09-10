@@ -12,12 +12,13 @@
 class AhoCorasick
 {
 public:
-	AhoCorasick(
-		_In_ std::shared_ptr<RAIIReigstryKey> RootKey
-	);
+	AhoCorasick();
 	~AhoCorasick();
 
-	bool Init(_In_ bool LoadBuildPaths);
+	bool Init(
+		_In_ const WCHAR* RootPath, 
+		_In_ bool LoadBuildPaths
+	);
 
 	bool Save();
 
@@ -49,11 +50,12 @@ private:
 
 	void ReadBuildPaths();
 	bool CreateOrReadAllSubKeys(
+		_In_ const WCHAR* RootPath,
 		_In_ bool LoadBuiledPaths
 	);
 
 	bool CreateOrOpenBuiledPathsRegKey();
-
+	bool OpenRootKey(_In_ const WCHAR* RootPath);
 
 private:
 	std::shared_ptr<RAIIReigstryKey> m_AllPathsRegKey;

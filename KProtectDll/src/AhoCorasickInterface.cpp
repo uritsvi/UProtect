@@ -7,8 +7,7 @@
 
 bool AhoCorasick::m_InitAhoCorasick;
 
-AhoCorasick::AhoCorasick(
-	_In_ std::shared_ptr<RAIIReigstryKey> RootKey) {
+AhoCorasick::AhoCorasick() {
 
 	if (!m_InitAhoCorasick) {
 		init_aho_corasick(
@@ -21,18 +20,22 @@ AhoCorasick::AhoCorasick(
 		m_InitAhoCorasick = true;
 	}
 
-	m_RootKey = RootKey;
-
 	m_BuildTrie =
 		std::make_shared<BuildTrieEntry>();
+
 }
 AhoCorasick::~AhoCorasick() {
 }
 
-bool AhoCorasick::Init(_In_ bool LoadBuildPaths) {
-	return CreateOrReadAllSubKeys(
+bool AhoCorasick::Init(
+	_In_ const WCHAR* RootPath,
+	_In_ bool LoadBuildPaths) {
+	
+	bool res =CreateOrReadAllSubKeys(
+		RootPath,
 		LoadBuildPaths
 	);
+	return res;
 }
 
 bool AhoCorasick::Save() {
@@ -48,30 +51,13 @@ bool AhoCorasick::Save() {
 }
 
 bool AhoCorasick::SavePaths() {
-	auto key = RAIIReigstryKey(
-		HKEY_LOCAL_MACHINE,
-		REG_BUILD_PATHS,
-		KEY_ALL_ACCESS,
-		FALSE);
-
-	if (key.FailedToCreate()) {
-		
-		key = RAIIReigstryKey(
-			HKEY_LOCAL_MACHINE,
-			REG_BUILD_PATHS,
-			KEY_ALL_ACCESS,
-			TRUE);
-		if (key.FailedToCreate()) {
-			return false;
-		}
-	}
-
-	bool res = key.DeleteAllValue();
+	bool res = 
+		m_AllPathsRegKey->DeleteAllValue();
 	if (!res) {
 		return false;
 	}
 
-	res = key.WriteMultiWString(
+	res = m_AllPathsRegKey->WriteMultiWString(
 		ALL_PATHS_MULTI_STRING_VALUE_NAME,
 		m_AllPaths
 	);
@@ -214,16 +200,34 @@ bool AhoCorasick::CreateOrOpenBuiledPathsRegKey() {
 				ALL_PATHS_SUB_KEY,
 				KEY_ALL_ACCESS,
 				TRUE);
-		return false;
+		return !m_AllPathsRegKey->FailedToCreate();
 	}
 	return true;
 }
 
+bool AhoCorasick::OpenRootKey(_In_ const WCHAR* RootPath) {
+	m_RootKey =
+		std::make_shared<RAIIReigstryKey>(
+			HKEY_LOCAL_MACHINE,
+			RootPath,
+			KEY_ALL_ACCESS,
+			FALSE
+		);
+	return !m_RootKey->FailedToCreate();
+}
+
 bool AhoCorasick::CreateOrReadAllSubKeys(
+	_In_ const WCHAR* RootPath,
 	_In_ bool LoadBuiledPaths) {
 
 	bool res = true;
 	do {
+		res =
+			OpenRootKey(RootPath);
+		if (!res) {
+			break;
+		}
+
 		res =
 			CreateOrOpenBuiledPathsRegKey();
 		if (!res) {

@@ -1,19 +1,13 @@
 #pragma once 
 
-#include <Windows.h>
-
-#include <memory>
-#include <sal.h>
-#include <list>
-
 #include "AhoCorasickInterface.h"
 #include "IProtect.h"
+#include "..\..\Common\Common.h"
 
-class Registry : public IProtect{
-	
+class FilePaths : public IProtect {
 public:
-	Registry();
-	~Registry();
+	FilePaths();
+	~FilePaths();
 
 	bool Init();
 
@@ -25,7 +19,7 @@ public:
 		_Out_ bool& Found
 	);
 
+
 private:
 	AhoCorasick m_AhoCorasick;
 };
-
