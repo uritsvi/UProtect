@@ -1,5 +1,6 @@
 #include "AhoCorasickInterface.h"
 #include "..\Common\Common.h"
+#include "..\KTL\include\KTLMemory.hpp"
 
 /*
 * I include this file last becaus it is dependent on
@@ -46,6 +47,7 @@ NTSTATUS AhoCorasickInterface::LoadAchoCorasickTrie(_In_ const WCHAR* Root) {
 	}
 
 	if (size == 0) {
+		m_BlockTrie = nullptr;
 		goto end;
 	}
 
@@ -111,15 +113,22 @@ AhoCorasickInterface::AhoCorasickInterface() {
 	m_BlockTrie = nullptr;
 	m_WCharRange = { 0 };
 
+	m_EResource = new(POOL_FLAG_NON_PAGED, DRIVER_TAG)ExecutiveResource();
+
 	ExInitializeFastMutex(&mutex);
 }
 AhoCorasickInterface::~AhoCorasickInterface() {
+	m_EResource->Delete();
+	delete m_EResource;
+
 	if (m_BlockTrie) {
 		delete m_BlockTrie;
 	}
 }
 
 bool AhoCorasickInterface::Init(_In_ const WCHAR* RootKey) {
+	m_EResource->Init();
+	
 	if (NT_SUCCESS(LoadAchoCorasickTrie(RootKey))) {
 		return true;
 	}
@@ -128,7 +137,11 @@ bool AhoCorasickInterface::Init(_In_ const WCHAR* RootKey) {
 
 bool AhoCorasickInterface::Match(_In_ UNICODE_STRING* Path) {
 
+	m_EResource->LockShared();
+
 	if (m_BlockTrie == nullptr) {
+		m_EResource->UnlockShared();
+
 		return false;
 	}
 
@@ -143,9 +156,23 @@ bool AhoCorasickInterface::Match(_In_ UNICODE_STRING* Path) {
 		&context, 
 		&range);
 
-
-
+	m_EResource->UnlockShared();
 
 	return res;
+}
 
+NTSTATUS AhoCorasickInterface::ReloadPolicy(const WCHAR* RootKey) {
+	m_EResource->Lock();
+
+	if (m_BlockTrie != nullptr) {
+		delete m_BlockTrie;
+
+	}
+
+	NTSTATUS status = 
+		LoadAchoCorasickTrie(RootKey);
+
+	m_EResource->Unlock();
+
+	return status;
 }

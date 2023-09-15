@@ -103,10 +103,12 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\EResource.h" />
     <ClInclude Include="include\KTL.h" />
     <ClInclude Include="include\KTLMemory.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\EResource.cpp" />
     <ClCompile Include="src\Memory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

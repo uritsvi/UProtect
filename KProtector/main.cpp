@@ -1,3 +1,5 @@
+#include "..\Common\Common.h"
+
 #include "MiniFilter.h"
 
 #include "Driver.h"
@@ -59,9 +61,30 @@ NTSTATUS Control(
 	_In_ DEVICE_OBJECT* Device, 
 	_In_ IRP* Irp) {
 
+	auto sp = IoGetCurrentIrpStackLocation(Irp);
+	auto dic = sp->Parameters.DeviceIoControl;
+
+	NTSTATUS status = STATUS_SUCCESS;
+
+	switch (dic.IoControlCode)
+	{
+	case IOCTL_RELOAD_MINIFILTER_POLICY: {
+		KdPrint(("IOCTL"));
+		status = MiniFilter::GetInstance()->ReloadPolicy();
+	}break;
+			
+
+		default:KdPrint(("Invalid control code!")); break;
+	}
+
+	if (!NT_SUCCESS(status)) {
+		KdPrint(("Failed to reload minifilter policy"));
+	}
+
 	UNREFERENCED_PARAMETER(Device);
 
-	return CompleteReq(Irp);
+
+	return CompleteReq(Irp, status);
 }
 
 void Unload(_In_ DRIVER_OBJECT* Driver) {
@@ -111,8 +134,6 @@ extern "C" NTSTATUS DriverEntry(
 			KdPrint(("Failed to create sym link"));
 			break;
 		}
-
-		dev->Flags |= DO_BUFFERED_IO;
 
 
 #ifdef DBG

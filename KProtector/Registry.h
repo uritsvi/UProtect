@@ -24,7 +24,7 @@ public:
 
 private:
 	LARGE_INTEGER m_Cookie;
-	AhoCorasickInterface m_AhoCorasickInterface;
+	AhoCorasickInterface* m_AhoCorasickInterface;
 	
 	//FinalTrieEntry* m_BlockTrie;
 	//WCharRange m_WCharRange;

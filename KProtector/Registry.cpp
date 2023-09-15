@@ -46,11 +46,11 @@ NTSTATUS RegistryBlocker::CreateRegistryBlocker(_Out_ RegistryBlocker **Blocker)
 
 RegistryBlocker::RegistryBlocker() {
 	m_Cookie = { 0 };
-	m_AhoCorasickInterface = AhoCorasickInterface();
+	m_AhoCorasickInterface = new (POOL_FLAG_PAGED, DRIVER_TAG)AhoCorasickInterface();
 }
 
 bool RegistryBlocker::Init() {
-	return m_AhoCorasickInterface.Init(DRIVER_REG_INFO_ROOT_PATH);
+	return m_AhoCorasickInterface->Init(DRIVER_REG_INFO_ROOT_PATH);
 }
 
 
@@ -93,7 +93,7 @@ NTSTATUS RegistryBlocker::AllowToModify(_In_ PVOID Object) {
 
 
 		MatchContext context = { 0 };
-		if (m_AhoCorasickInterface.Match((UNICODE_STRING*)name)) {
+		if (m_AhoCorasickInterface->Match((UNICODE_STRING*)name)) {
 
 			KdPrint(("Blocked key %wZ", name));
 

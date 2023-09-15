@@ -35,6 +35,8 @@
             this.FolderButton = new System.Windows.Forms.Button();
             this.RemoveButton = new System.Windows.Forms.Button();
             this.SaveButton = new System.Windows.Forms.Button();
+            this.StartDriverButton = new System.Windows.Forms.Button();
+            this.StopDriverButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // AddButton
@@ -104,11 +106,35 @@
             this.SaveButton.UseVisualStyleBackColor = true;
             this.SaveButton.Click += new System.EventHandler(this.SaveButton_Click);
             // 
+            // StartDriverButton
+            // 
+            this.StartDriverButton.Enabled = false;
+            this.StartDriverButton.Location = new System.Drawing.Point(28, 467);
+            this.StartDriverButton.Name = "StartDriverButton";
+            this.StartDriverButton.Size = new System.Drawing.Size(80, 23);
+            this.StartDriverButton.TabIndex = 13;
+            this.StartDriverButton.Text = "Start Driver";
+            this.StartDriverButton.UseVisualStyleBackColor = true;
+            this.StartDriverButton.UseWaitCursor = true;
+            this.StartDriverButton.Click += new System.EventHandler(this.StartDriverButton_Click);
+            // 
+            // StopDriverButton
+            // 
+            this.StopDriverButton.Location = new System.Drawing.Point(114, 467);
+            this.StopDriverButton.Name = "StopDriverButton";
+            this.StopDriverButton.Size = new System.Drawing.Size(80, 23);
+            this.StopDriverButton.TabIndex = 14;
+            this.StopDriverButton.Text = "Stop Driver";
+            this.StopDriverButton.UseVisualStyleBackColor = true;
+            this.StopDriverButton.Click += new System.EventHandler(this.StopDriverButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(852, 511);
+            this.Controls.Add(this.StopDriverButton);
+            this.Controls.Add(this.StartDriverButton);
             this.Controls.Add(this.SaveButton);
             this.Controls.Add(this.RemoveButton);
             this.Controls.Add(this.FolderButton);
@@ -132,6 +158,8 @@
         private System.Windows.Forms.Button FolderButton;
         private System.Windows.Forms.Button RemoveButton;
         private System.Windows.Forms.Button SaveButton;
+        private System.Windows.Forms.Button StartDriverButton;
+        private System.Windows.Forms.Button StopDriverButton;
     }
 }
 

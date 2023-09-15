@@ -71,5 +71,18 @@ namespace UProtectApp
         public static extern bool RemoveMiniFilterPath(string Path);
 
 
+        [System.Runtime.InteropServices.DllImportAttribute("KProtectDll.dll", EntryPoint = "StartDriver")]
+        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.I1)]
+        public static extern bool StartDriver();
+
+        [System.Runtime.InteropServices.DllImportAttribute("KProtectDll.dll", EntryPoint = "StopDriver")]
+        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.I1)]
+        public static extern bool StopDriver();
+
+
+        [System.Runtime.InteropServices.DllImportAttribute("KProtectDll.dll", EntryPoint = "IsDriverLoaded")]
+        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.I1)]
+        public static extern bool IsDriverLoaded();
+
     }
 }

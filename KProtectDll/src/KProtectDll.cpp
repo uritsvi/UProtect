@@ -1,10 +1,14 @@
 #include <list>
 
+#include "..\..\Common\Common.h"
 #include "..\include\KProtectDll.h"
 #include "..\..\Log\Log.h"
 #include "..\..\AhoCorasickWithDump-CPP\include\aho_corasick.h"
 #include "..\..\Common\Common.h"
 #include "..\include\AhoCorasickInterface.h"
+
+#include <psapi.h>
+
 
 #pragma warning(disable:4996)
 
@@ -13,15 +17,33 @@ AhoCorasick g_FilePaths;
 
 std::list<std::wstring> m_AllFilePaths;
 
+HANDLE g_DriverHandle;
+
 bool ConvertDosPathToNTFSPath(
 	_In_ const WCHAR* DosPath,
 	_Out_ WCHAR* NTFSBuffer,
 	_In_ int BufferSize
 );
 
+bool LoadDriver() {
+	g_DriverHandle = 
+		CreateFile(
+			DRIVER_SYM_LINK, 
+			FILE_READ_ACCESS | FILE_WRITE_ACCESS, 
+			0, 
+			nullptr, 
+			OPEN_EXISTING, 
+			0, 
+			nullptr);
+
+	if (g_DriverHandle == INVALID_HANDLE_VALUE) {
+		return false;
+	}
+	return true;
+}
+
 EXPORT bool InitKProtectInteface() {
 	bool res = true;
-
 
 	do {
 		res =
@@ -32,13 +54,7 @@ EXPORT bool InitKProtectInteface() {
 		res =
 			g_FilePaths.Init(MINIFILTER_INFO_ROOT_PATH);
 
-		HMODULE ntdllHandle = GetModuleHandleA("ntdll.dll");
-		if (ntdllHandle == nullptr) {
-			res = false;
-			break;
-		}
-
-
+		LoadDriver();
 
 	} while (false);
 
@@ -125,7 +141,27 @@ EXPORT bool AddFilePathToProtect(_In_ const PWCHAR Path) {
 
 }
 EXPORT bool ApplyFilePaths() {
-	return g_FilePaths.Save(m_AllFilePaths);
+	bool res = 
+		g_FilePaths.Save(m_AllFilePaths);
+	if (!res) {
+		return false;
+	}
+
+	if (g_DriverHandle != INVALID_HANDLE_VALUE) {
+		/* Make the driver reload the policy */
+		res = DeviceIoControl(
+			g_DriverHandle, 
+			IOCTL_RELOAD_MINIFILTER_POLICY, 
+			nullptr, 
+			0, 
+			nullptr, 
+			0, 
+			nullptr, 
+			nullptr
+		);
+	}
+
+	return res;
 }
 EXPORT bool TestMatchFilePath(
 	_In_ const PWCHAR Path,
@@ -181,5 +217,77 @@ extern "C" EXPORT bool RemoveMiniFilterPath(_In_ const PWCHAR Path) {
 		return false;
 	}
 	return g_FilePaths.RemovePath(buffer);
+
+}
+
+extern "C" EXPORT bool StartDriver() {
+	STARTUPINFO si = { sizeof(STARTUPINFO) };
+	PROCESS_INFORMATION pi;
+
+	if (!CreateProcessW(
+		L"C:\\Windows\\System32\\cmd.exe",
+		(LPWSTR)L"/C sc start Kprotect",
+		NULL, 
+		NULL, 
+		0, 
+		CREATE_NO_WINDOW,
+		NULL, 
+		NULL, 
+		&si, 
+		&pi))
+	{
+		return false;
+	}
+
+	WaitForSingleObject(pi.hProcess, INFINITE);
+
+	return 	LoadDriver();
+}
+extern "C" EXPORT bool StopDriver() {
+	STARTUPINFO si = { sizeof(STARTUPINFO) };
+	PROCESS_INFORMATION pi;
+
+	CloseHandle(g_DriverHandle);
+
+	if (!CreateProcessW(
+		L"C:\\Windows\\System32\\cmd.exe",
+		(LPWSTR)L"/C sc stop Kprotect",
+		NULL,
+		NULL,
+		0,
+		CREATE_NO_WINDOW,
+		NULL,
+		NULL,
+		&si,
+		&pi))
+	{
+		return false;
+	}
+
+	return true;
+}
+
+extern "C" EXPORT bool IsDriverLoaded() {
+	LPVOID drivers[DEFAULT_BUFFER_SIZE];
+	DWORD cbNeeded;
+	int cDrivers, i;
+
+	if (EnumDeviceDrivers(drivers, sizeof(drivers), &cbNeeded) && cbNeeded < sizeof(drivers))
+	{
+		TCHAR szDriver[DEFAULT_BUFFER_SIZE];
+
+		cDrivers = cbNeeded / sizeof(drivers[0]);
+
+		for (i = 0; i < cDrivers; i++)
+		{
+			if (GetDeviceDriverBaseName(drivers[i], szDriver, sizeof(szDriver) / sizeof(szDriver[0])))
+			{
+				if (wcscmp(szDriver, L"KProtector.sys") == 0) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 
 }

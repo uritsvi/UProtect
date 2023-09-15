@@ -125,6 +125,12 @@ namespace UProtectApp
 
         }
 
+        private void SwapStartStopDriverButtonsState()
+        {
+            StartDriverButton.Enabled = !StartDriverButton.Enabled;
+            StopDriverButton.Enabled = !StopDriverButton.Enabled;
+        }
+
         private void Form1_Load(object sender, EventArgs e)
         {
             bool res =
@@ -132,6 +138,11 @@ namespace UProtectApp
 
             var passwordForm = new PassswordForm(PasswordCallback);
             passwordForm.ShowDialog();
+
+            if (!KprotectDll.IsDriverLoaded())
+            {
+                SwapStartStopDriverButtonsState();
+            }
         }
         private void AddButton_Click(object sender, EventArgs e)
         {
@@ -195,6 +206,30 @@ namespace UProtectApp
         private void SaveButton_Click(object sender, EventArgs e)
         {
             KprotectDll.ApplyFilePaths();
+        }
+
+        private void StartDriverButton_Click(object sender, EventArgs e)
+        {
+            bool res = 
+                KprotectDll.StartDriver();
+
+            if (!res)
+            {
+                return;
+            }
+            SwapStartStopDriverButtonsState();
+        }
+
+        private void StopDriverButton_Click(object sender, EventArgs e)
+        {
+
+            bool res = 
+                KprotectDll.StopDriver();
+            if (!res)
+            {
+                return;
+            }
+            SwapStartStopDriverButtonsState();
         }
     }
 }

@@ -21,6 +21,8 @@ public:
 		_In_ UNICODE_STRING* Registry);
 	NTSTATUS StartProtect();
 
+	NTSTATUS ReloadPolicy();
+
 	bool AllowToModify(_In_ UNICODE_STRING* Path);
 
 private:

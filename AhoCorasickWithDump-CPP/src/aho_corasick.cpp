@@ -312,7 +312,7 @@ static void convert_node_to_final(
         BuildTrieEntry* leaf =
             (BuildTrieEntry*)BuildEntry->Leaves[i];
 
-        entry->Leaves[i - Range->Min] = leaf->Index;
+        entry->Leaves[i - Range->Min] = (short)leaf->Index;
 
         convert_node_to_final(
             (BuildTrieEntry*)BuildEntry->Leaves[i],

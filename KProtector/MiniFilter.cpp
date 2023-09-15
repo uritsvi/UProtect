@@ -236,7 +236,7 @@ MiniFilter::~MiniFilter() {
 }
 MiniFilter::MiniFilter() {
 	m_AhoCorasick = 
-		new (POOL_FLAG_PAGED, DRIVER_TAG)AhoCorasickInterface();
+		new (POOL_FLAG_NON_PAGED, DRIVER_TAG)AhoCorasickInterface();
 }
 
 
@@ -349,5 +349,9 @@ bool MiniFilter::AllowToModify(_In_ UNICODE_STRING* Path) {
 
 NTSTATUS MiniFilter::StartProtect() {
 	return FltStartFiltering(m_Filter);
+}
+
+NTSTATUS MiniFilter::ReloadPolicy() {
+	return m_AhoCorasick->ReloadPolicy(DRIVER_MINI_FILTER_INFO_ROOT_PATH);
 }
 

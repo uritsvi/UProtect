@@ -124,6 +124,7 @@
     <ClCompile Include="..\AhoCorasickWithDump-CPP\src\hash_table.cpp" />
     <ClCompile Include="..\AhoCorasickWithDump-CPP\src\lib.cpp" />
     <ClCompile Include="..\AhoCorasickWithDump-CPP\src\list.cpp" />
+    <ClCompile Include="..\KTL\src\EResource.cpp" />
     <ClCompile Include="..\KTL\src\Memory.cpp" />
     <ClCompile Include="AhoCorasickInterface.cpp" />
     <ClCompile Include="main.cpp" />
@@ -136,6 +137,7 @@
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\hash_table.h" />
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\lib.h" />
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\list.h" />
+    <ClInclude Include="..\KTL\include\EResource.h" />
     <ClInclude Include="AhoCorasickInterface.h" />
     <ClInclude Include="Driver.h" />
     <ClInclude Include="MiniFilter.h" />

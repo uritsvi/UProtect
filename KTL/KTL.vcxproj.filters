@@ -25,9 +25,15 @@
     <ClInclude Include="include\KTLMemory.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\EResource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EResource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -15,3 +15,5 @@
 #define SUCCESSFULY_PROTECT_PATHS L"Successfuly protect paths"
 #define SUCCESS_TEST_PATHS L"Paths match!"
 #define FAILED_TEST_PATHS L"Paths do not match!"
+
+#define DRIVER_NOT_FOUND "Driver not found!"
