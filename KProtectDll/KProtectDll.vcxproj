@@ -79,11 +79,11 @@
     <LibraryPath>C:\Users\97254\Desktop\VmwereShared\Protector\AhoCorasickWithDump\lib;C:\Users\97254\Desktop\VmwereShared\Protector\Helpers\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>.\dll</OutDir>
+    <OutDir>.\..\bin</OutDir>
     <LibraryPath>C:\Users\97254\Desktop\VmwereShared\Protector\AhoCorasickWithDump\lib;C:\Users\97254\Desktop\VmwereShared\Protector\Helpers\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>.\dll</OutDir>
+    <OutDir>.\..\bin</OutDir>
     <LibraryPath>C:\Users\97254\Desktop\VmwereShared\Protector\AhoCorasickWithDump\lib;C:\Users\97254\Desktop\VmwereShared\Protector\Helpers\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -148,22 +148,16 @@
     <ClCompile Include="..\AhoCorasickWithDump-CPP\src\lib.cpp" />
     <ClCompile Include="..\AhoCorasickWithDump-CPP\src\list.cpp" />
     <ClCompile Include="src\AhoCorasickInterface.cpp" />
-    <ClCompile Include="src\FilePaths.cpp" />
     <ClCompile Include="src\KProtectDll.cpp" />
     <ClCompile Include="src\RAIIRegistry.cpp" />
-    <ClCompile Include="src\Registry.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\aho_corasick.h" />
-    <ClInclude Include="..\AhoCorasickWithDump-CPP\include\hash_table.h" />
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\lib.h" />
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\list.h" />
     <ClInclude Include="include\AhoCorasickInterface.h" />
-    <ClInclude Include="include\FilePaths.h" />
-    <ClInclude Include="include\IProtect.h" />
     <ClInclude Include="include\KProtectDll.h" />
     <ClInclude Include="include\RAIIRegistry.h" />
-    <ClInclude Include="include\Registry.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

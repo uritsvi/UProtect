@@ -77,10 +77,12 @@
     <LibraryPath>$(SolutionDir)\KProtectDll\dll;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LibraryPath>$(SolutionDir)\KProtectDll\dll;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\97254\Desktop\VmwereShared\Protector\bin;$(LibraryPath)</LibraryPath>
+    <OutDir>..\bin</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LibraryPath>$(SolutionDir)\KProtectDll\dll;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\Users\97254\Desktop\VmwereShared\Protector\bin;$(LibraryPath)</LibraryPath>
+    <OutDir>..\bin</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -142,15 +144,6 @@
     <ClCompile Include="CLI.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <CopyFileToFolders Include="..\KProtectDll\dll\KProtectDll.dll">
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
-      <FileType>Document</FileType>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
-    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLI.h" />

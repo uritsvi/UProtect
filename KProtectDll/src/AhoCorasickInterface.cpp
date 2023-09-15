@@ -1,6 +1,10 @@
+#include <string.h>
+
 #include "..\include\AhoCorasickInterface.h"
 
 #include "..\..\Common\Common.h"
+
+#include <iostream>
 
 #define ALL_PATHS_SUB_KEY L"Build"
 #define ALL_PATHS_MULTI_STRING_VALUE_NAME L"Build"
@@ -8,7 +12,6 @@
 bool AhoCorasick::m_InitAhoCorasick;
 
 AhoCorasick::AhoCorasick() {
-
 	if (!m_InitAhoCorasick) {
 		init_aho_corasick(
 			malloc,
@@ -23,34 +26,36 @@ AhoCorasick::AhoCorasick() {
 	m_BuildTrie =
 		std::make_shared<BuildTrieEntry>();
 
+	m_fullContext =
+		std::make_shared<FullContext>();
+	init_full_context(m_fullContext.get());
 }
 AhoCorasick::~AhoCorasick() {
 }
 
-bool AhoCorasick::Init(
-	_In_ const WCHAR* RootPath,
-	_In_ bool LoadBuildPaths) {
+bool AhoCorasick::Init(_In_ const WCHAR* RootPath) {
 	
-	bool res =CreateOrReadAllSubKeys(
-		RootPath,
-		LoadBuildPaths
-	);
+	bool res =CreateOrReadAllSubKeys(RootPath);
 	return res;
 }
 
 bool AhoCorasick::Save() {
+	return Save(m_AllPaths);
+}
+
+bool AhoCorasick::Save(_In_ std::list<std::wstring> Paths) {
 	bool res = SaveTrie();
 	if (!res) {
 		return false;
 	}
-	res = SavePaths();
+	res = SavePaths(Paths);
 	if (!res) {
 		return false;
 	}
 	return true;
 }
 
-bool AhoCorasick::SavePaths() {
+bool AhoCorasick::SavePaths(_In_ std::list<std::wstring> Paths) {
 	bool res = 
 		m_AllPathsRegKey->DeleteAllValue();
 	if (!res) {
@@ -59,7 +64,7 @@ bool AhoCorasick::SavePaths() {
 
 	res = m_AllPathsRegKey->WriteMultiWString(
 		ALL_PATHS_MULTI_STRING_VALUE_NAME,
-		m_AllPaths
+		Paths
 	);
 	if (!res) {
 		return false;
@@ -109,6 +114,11 @@ bool AhoCorasick::SaveTrie() {
 			break;
 		}
 
+		std::cout << m_AllPaths.size() << "\n";
+		for (auto a : m_AllPaths) {
+			std::wcout << a << "\n";
+		}
+
 		res = MakeTrie(
 			m_AllPaths, 
 			&finalTrie, 
@@ -156,6 +166,8 @@ bool AhoCorasick::MakeTrie(
 		return false;
 	}
 
+	BuildTrieEntry entry = {0};
+
 	make_wchar_range(&Range);
 	
 	int finalNumOfTries = 0;
@@ -163,15 +175,16 @@ bool AhoCorasick::MakeTrie(
 		int numOfTries;
 		add_leaves(
 			path.c_str(), 
-			m_BuildTrie.get(),
+			&entry,
 			&numOfTries, 
-			&Range);
+			&Range,
+			m_fullContext.get());
 
 		finalNumOfTries += numOfTries;
 	}
 
 	make_final_trie(
-		m_BuildTrie.get(),
+		&entry,
 		finalNumOfTries, 
 		&Range, 
 		Trie, 
@@ -181,8 +194,41 @@ bool AhoCorasick::MakeTrie(
 }
 
 bool AhoCorasick::AddPath(_In_ std::wstring Path) {
+	
+
+
+	if (m_AllPaths.size() >= MAX_PATHS) {
+		return false;;
+	}
+
+	if (Path.length() >= MAX_PATH_LEN) {
+		return false;
+	}
+
+	for (auto path : m_AllPaths) {
+		if (path == Path) {
+			return false;
+		}
+	}
+
+
+
 	m_AllPaths.push_back(Path);
 	return true;
+}
+bool AhoCorasick::RemovePath(_In_ std::wstring Path) {
+
+	for (auto path : m_AllPaths) {
+
+		if (path == Path) {
+
+
+			m_AllPaths.remove(path);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool AhoCorasick::CreateOrOpenBuiledPathsRegKey() {
@@ -216,9 +262,7 @@ bool AhoCorasick::OpenRootKey(_In_ const WCHAR* RootPath) {
 	return !m_RootKey->FailedToCreate();
 }
 
-bool AhoCorasick::CreateOrReadAllSubKeys(
-	_In_ const WCHAR* RootPath,
-	_In_ bool LoadBuiledPaths) {
+bool AhoCorasick::CreateOrReadAllSubKeys(_In_ const WCHAR* RootPath) {
 
 	bool res = true;
 	do {
@@ -233,32 +277,63 @@ bool AhoCorasick::CreateOrReadAllSubKeys(
 		if (!res) {
 			break;
 		}
-		if (!LoadBuiledPaths) {
-			m_AllPathsRegKey->DeleteAllValue();
-			break;
-		}
-		ReadBuildPaths();
-
 	} while (false);
 
 	return res;
 }
 
-void AhoCorasick::ReadBuildPaths() {
+
+bool AhoCorasick::BuiledStringFromList(
+	_Out_ WCHAR* String,
+	_In_ int Size,
+	_In_ std::list<std::wstring> Paths) {
+	
+	bool res = true;
+	int i = 0;
+	for (auto string : Paths) {
+		if (i + ((string.length() + 1) * sizeof(wchar_t)) >= Size) {
+			res = false;
+			break;
+		}
+
+
+		memcpy(
+			(String + i),
+			string.c_str(),
+			string.length() * sizeof(wchar_t)
+		);
+
+		i += string.length();
+		String[i] = ';';
+		i += 1;
+	}
+
+	String[i] = '\0';
+	return res;
+}
+
+bool AhoCorasick::ReadBuildPaths(
+	_Out_ PWCHAR Path,
+	_In_ int Size) {
+	
+	bool res = true;
 
 	std::list<std::wstring> paths;
-	bool res = m_AllPathsRegKey->ReadMultyStringValue(
+	res = m_AllPathsRegKey->ReadMultyStringValue(
 		ALL_PATHS_MULTI_STRING_VALUE_NAME,
 		paths
 	);
-
 	if (!res) {
-		return;
+		return false;
 	}
-
-	for (auto string : paths) {
-		m_AllPaths.push_back(string);
-	}
+	
+	res = BuiledStringFromList(
+		Path, 
+		Size, 
+		paths
+	);
+	
+	return res;
 }
 
 bool AhoCorasick::TestAhoCorsickMatch(
@@ -316,10 +391,13 @@ bool AhoCorasick::TestAhoCorsickMatch(
 			reinterpret_cast<FinalTrieEntry*>(buffer);
 
 		MatchContext context = { 0};
+		int len = wcslen(Path);
+
 		Found = match(
 			finalTrie,
 			finalTrie,
 			Path,
+			len,
 			&context,
 			&wCharRange);
 		

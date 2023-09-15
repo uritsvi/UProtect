@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{20A771F5-7D50-437A-9529-EA61CCA5A6E0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KProtectDll", "KProtectDll\KProtectDll.vcxproj", "{54EF58A0-2FA0-4051-A4E3-DD07230F217F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F9DC0636-8BA2-466E-A576-8A30D956FA20} = {F9DC0636-8BA2-466E-A576-8A30D956FA20}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KProtector", "KProtector\KProtector.vcxproj", "{81D71944-2DA4-423C-B693-7E8278DBDB91}"
 EndProject
@@ -29,6 +32,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{FF6AC2
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AhoCorasickWithDump", "AhoCorasickWithDump-CPP\AhoCorasickWithDump.vcxproj", "{F9DC0636-8BA2-466E-A576-8A30D956FA20}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UProtectGUI", "UProtectGUI\UProtectGUI.vcxproj", "{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UProtectApp", "UProtectApp\UProtectApp.csproj", "{E6C07EC0-55D8-4504-80D1-EB7881279E1C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{54EF58A0-2FA0-4051-A4E3-DD07230F217F} = {54EF58A0-2FA0-4051-A4E3-DD07230F217F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -146,6 +156,38 @@ Global
 		{F9DC0636-8BA2-466E-A576-8A30D956FA20}.Release|x64.Build.0 = Release|x64
 		{F9DC0636-8BA2-466E-A576-8A30D956FA20}.Release|x86.ActiveCfg = Release|Win32
 		{F9DC0636-8BA2-466E-A576-8A30D956FA20}.Release|x86.Build.0 = Release|Win32
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Debug|Any CPU.Build.0 = Debug|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Debug|ARM64.ActiveCfg = Debug|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Debug|ARM64.Build.0 = Debug|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Debug|x64.ActiveCfg = Debug|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Debug|x64.Build.0 = Debug|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Debug|x86.ActiveCfg = Debug|Win32
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Debug|x86.Build.0 = Debug|Win32
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Release|Any CPU.ActiveCfg = Release|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Release|Any CPU.Build.0 = Release|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Release|ARM64.ActiveCfg = Release|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Release|ARM64.Build.0 = Release|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Release|x64.ActiveCfg = Release|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Release|x64.Build.0 = Release|x64
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Release|x86.ActiveCfg = Release|Win32
+		{8C251BBE-2016-4ECF-93BA-E4E5C7DD51A1}.Release|x86.Build.0 = Release|Win32
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Debug|x64.Build.0 = Debug|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Debug|x86.Build.0 = Debug|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Release|ARM64.Build.0 = Release|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Release|x64.ActiveCfg = Release|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Release|x64.Build.0 = Release|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Release|x86.ActiveCfg = Release|Any CPU
+		{E6C07EC0-55D8-4504-80D1-EB7881279E1C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

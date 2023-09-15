@@ -4,17 +4,34 @@
 
 #include <Windows.h>
 
-EXPORT bool InitKProtectInteface();
 
-EXPORT bool AddRegistryPathToProtect(_In_ const PWCHAR Path);
-EXPORT bool ApplyRegistryPaths();
-EXPORT bool TestMatchRegistry(
-	_In_ const PWCHAR Path, 
-	_Out_ bool& Found
-);
-EXPORT bool AddFilePathToProtect(_In_ const PWCHAR Path);
-EXPORT bool ApplyFilePaths();
-EXPORT bool TestMatchFilePath(
-	_In_ const PWCHAR Path,
-	_Out_ bool& Found
-);
+	extern "C" EXPORT bool InitKProtectInteface();
+	 
+	extern "C" EXPORT bool AddRegistryPathToProtect(_In_ const PWCHAR Path);
+	extern "C" EXPORT bool ApplyRegistryPaths();
+	extern "C" EXPORT bool TestMatchRegistry(
+		_In_ const PWCHAR Path,
+		_Out_ bool& Found
+	);
+	extern "C" EXPORT bool AddFilePathToProtect(_In_ const PWCHAR Path);
+
+	extern "C" EXPORT bool ApplyFilePaths();
+	extern "C" EXPORT bool TestMatchFilePath(
+		_In_ const PWCHAR Path,
+		_Out_ bool& Found
+	);
+
+	extern "C" EXPORT bool QueryReg(
+		_Out_ PWCHAR Paths,
+		_In_ int Size
+	);
+	
+	extern "C" EXPORT bool QueryMiniFilter(
+		_Out_ PWCHAR Paths,
+		_In_ int Size
+	);
+
+	extern "C" EXPORT bool RemoveRegPath(_In_ const PWCHAR Path);
+	extern "C" EXPORT bool RemoveMiniFilterPath(_In_ const PWCHAR Path);
+
+

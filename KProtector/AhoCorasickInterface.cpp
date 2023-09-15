@@ -45,6 +45,10 @@ NTSTATUS AhoCorasickInterface::LoadAchoCorasickTrie(_In_ const WCHAR* Root) {
 		goto end;
 	}
 
+	if (size == 0) {
+		goto end;
+	}
+
 	LONG_PTR range;
 	res =
 		key.ReadValueQWORD(
@@ -125,7 +129,6 @@ bool AhoCorasickInterface::Init(_In_ const WCHAR* RootKey) {
 bool AhoCorasickInterface::Match(_In_ UNICODE_STRING* Path) {
 
 	if (m_BlockTrie == nullptr) {
-		KdPrint(("Try calling Match() while aho corasick trie is null"));
 		return false;
 	}
 

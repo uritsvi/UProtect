@@ -2,10 +2,11 @@
 #define __AHO__CORASICK__
 
 #include <sal.h>
-//#include <stdbool.h>
+#include <stdbool.h>
 
 #include "..\..\AhoCorasickWithDump-CPP\include\list.h"
 #include "..\..\AhoCorasickWithDump-CPP\include\lib.h"
+#include "..\..\AhoCorasickWithDump-CPP\include\hash_table.h"
 
 
 #define MAX_LEAVES 1 << 16
@@ -24,7 +25,7 @@ struct BuildTrieEntry {
 	ListEntry Prefixes;
 	struct BuildTrieEntry* FailureLink;
 
-	short Index;
+	int Index;
 	int TravsFromRoot;
 
 	bool OutputNode;
@@ -55,6 +56,11 @@ struct WCharRange {
 	int Min;
 	int Max;
 };
+typedef struct {
+	short NumOfIndexes;
+	HashTable Prefixes;
+}FullContext;
+
 
 void make_wchar_range(_Out_ WCharRange* WCharRange);
 
@@ -63,11 +69,14 @@ void init_aho_corasick(
 	_In_ FreeFunction Free,
 	_In_ CopyMemoryFunction);
 
+void init_full_context(_Out_ FullContext* Context);
+
 void add_leaves(
 	_In_ const wchar_t* Words,
 	_Inout_ BuildTrieEntry* TrieEntry,
 	_Out_ int* NumOfTries,
-	_Out_ WCharRange* Range);
+	_Out_ WCharRange* WCharRange,
+	_In_ FullContext* Context);
 
 void make_final_trie(
 	_In_ BuildTrieEntry* BuildEntry,
@@ -82,7 +91,7 @@ bool match(
 	_In_ const wchar_t* Str,
 	_In_ int Len,
 	_In_ MatchContext* Context,
-	_In_ WCharRange* WCRange);
+	_In_ WCharRange* WCharRange);
 
 
 

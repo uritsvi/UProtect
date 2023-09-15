@@ -33,21 +33,12 @@
     <ClCompile Include="src\AhoCorasickInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Registry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\RAIIRegistry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FilePaths.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\aho_corasick.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AhoCorasickWithDump-CPP\include\hash_table.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\AhoCorasickWithDump-CPP\include\lib.h">
@@ -62,16 +53,7 @@
     <ClInclude Include="include\RAIIRegistry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Registry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\AhoCorasickInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\FilePaths.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\IProtect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

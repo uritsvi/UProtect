@@ -15,12 +15,10 @@ public:
 	AhoCorasick();
 	~AhoCorasick();
 
-	bool Init(
-		_In_ const WCHAR* RootPath, 
-		_In_ bool LoadBuildPaths
-	);
+	bool Init(_In_ const WCHAR* RootPath);
 
 	bool Save();
+	bool Save(_In_ std::list<std::wstring> Paths);
 
 	bool MakeTrie(
 		_In_ std::list<std::wstring> Paths, 
@@ -29,13 +27,25 @@ public:
 		_Out_ WCharRange& range);
 	
 	bool AddPath(_In_ std::wstring Path);
+	bool RemovePath(_In_ std::wstring Path);
 
 	bool TestAhoCorsickMatch(
 		_In_ const WCHAR* Path,
 		_Out_ bool& Found
 	);
+	
+	bool ReadBuildPaths(
+		_Out_ PWCHAR Path,
+		_In_ int Size
+	);
 
 private:
+	bool BuiledStringFromList(
+		_Out_ WCHAR* String, 
+		_In_ int Len, 
+		_In_ std::list<std::wstring> Paths
+	);
+
 	bool SaveTrie();
 	bool SaveRange(
 		_In_ std::shared_ptr<RAIIReigstryKey> Key, 
@@ -46,13 +56,9 @@ private:
 		_In_ int Size
 	);
 	
-	bool SavePaths();
+	bool SavePaths(_In_ std::list<std::wstring> Paths);
 
-	void ReadBuildPaths();
-	bool CreateOrReadAllSubKeys(
-		_In_ const WCHAR* RootPath,
-		_In_ bool LoadBuiledPaths
-	);
+	bool CreateOrReadAllSubKeys(_In_ const WCHAR* RootPath);
 
 	bool CreateOrOpenBuiledPathsRegKey();
 	bool OpenRootKey(_In_ const WCHAR* RootPath);
@@ -62,6 +68,8 @@ private:
 	std::shared_ptr<RAIIReigstryKey> m_RootKey;
 
 	std::shared_ptr<BuildTrieEntry> m_BuildTrie;
+
+	std::shared_ptr<FullContext> m_fullContext;
 
 	std::list<std::wstring> m_AllPaths;
 
