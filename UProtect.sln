@@ -24,8 +24,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Log", "Log", "{11A3EC67-CD3
 		Log\Log.h = Log\Log.h
 	EndProjectSection
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{B4129D99-3B95-43F4-B29F-C5020B6161B0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{FF6AC22B-0573-4A77-837A-CE5707DF7D82}"
 	ProjectSection(SolutionItems) = preProject
 		Common\Common.h = Common\Common.h
@@ -132,14 +130,6 @@ Global
 		{CCC2D71E-7F3A-401F-8404-19D1EA0E9A48}.Release|x64.Build.0 = Release|x64
 		{CCC2D71E-7F3A-401F-8404-19D1EA0E9A48}.Release|x86.ActiveCfg = Release|Win32
 		{CCC2D71E-7F3A-401F-8404-19D1EA0E9A48}.Release|x86.Build.0 = Release|Win32
-		{B4129D99-3B95-43F4-B29F-C5020B6161B0}.Debug|Any CPU.ActiveCfg = Debug
-		{B4129D99-3B95-43F4-B29F-C5020B6161B0}.Debug|ARM64.ActiveCfg = Debug
-		{B4129D99-3B95-43F4-B29F-C5020B6161B0}.Debug|x64.ActiveCfg = Debug
-		{B4129D99-3B95-43F4-B29F-C5020B6161B0}.Debug|x86.ActiveCfg = Debug
-		{B4129D99-3B95-43F4-B29F-C5020B6161B0}.Release|Any CPU.ActiveCfg = Release
-		{B4129D99-3B95-43F4-B29F-C5020B6161B0}.Release|ARM64.ActiveCfg = Release
-		{B4129D99-3B95-43F4-B29F-C5020B6161B0}.Release|x64.ActiveCfg = Release
-		{B4129D99-3B95-43F4-B29F-C5020B6161B0}.Release|x86.ActiveCfg = Release
 		{F9DC0636-8BA2-466E-A576-8A30D956FA20}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{F9DC0636-8BA2-466E-A576-8A30D956FA20}.Debug|Any CPU.Build.0 = Debug|x64
 		{F9DC0636-8BA2-466E-A576-8A30D956FA20}.Debug|ARM64.ActiveCfg = Debug|x64

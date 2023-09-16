@@ -1,75 +1,11 @@
 #include "Driver.h"
 #include "Processes.h"
 
-#include "..\KTL\include\KTLMemory.hpp"
+#include "..\KTL\include\KTLMemory.h"
+#include "..\Common\Common.h"
+
 
 Processes* Processes::m_Instance;
-
-/*
-void PcreateProcessNotifyRoutineEx(
-	_Inout_           PEPROCESS Process,
-	_In_                HANDLE ProcessId,
-	_Inout_ PPS_CREATE_NOTIFY_INFO CreateInfo) {
-
-	Processes::GetInstance()->SelfPcreateProcessNotifyRoutineEx(
-		Process, 
-		ProcessId, 
-		CreateInfo
-	);
-}
-
-
-
-NTSTATUS Processes::Init() {
-	NTSTATUS status = PsSetCreateProcessNotifyRoutineEx(
-		PcreateProcessNotifyRoutineEx, 
-		FALSE
-	);
-
-	return status;
-}
-
-void Processes::ShutDown() {
-	PsSetCreateProcessNotifyRoutineEx(
-		PcreateProcessNotifyRoutineEx,
-		TRUE
-	);
-}
-
-void Processes::SelfPcreateProcessNotifyRoutineEx(
-	_Inout_           PEPROCESS Process,
-	_In_                HANDLE ProcessId,
-	_Inout_ PPS_CREATE_NOTIFY_INFO CreateInfo) {
-
-	UNREFERENCED_PARAMETER(Process);
-
-	if (CreateInfo == nullptr) {
-		if (g_AllowedProcessId == (LONG64)HandleToULong(ProcessId)) {
-			g_AllowedProcessId = NULL_PROCESS_ID;
-		}
-
-		return;
-	}
-
-	if (g_AllowedProcessId != NULL_PROCESS_ID) {
-		return;
-	}
-
-	if (CreateInfo->ImageFileName == nullptr) {
-		return;
-	}
-
-	auto path = L"\\??\\C:\\bin";
-	if (memcmp(path, CreateInfo->ImageFileName->Buffer, (wcslen(path) * sizeof(wchar_t))) == 0) {
-		g_AllowedProcessId = (LONG64)ProcessId;
-	}
-
-}
-*/
-
-/*
-* TODO add locks
-*/
 
 typedef NTSTATUS (*ZwQueryInformationProcess)(
 	_In_      HANDLE           ProcessHandle,
@@ -95,6 +31,8 @@ Processes::Processes() {
 
 NTSTATUS Processes::Init() {
 
+	m_FastMutex.Init();
+
 	UNICODE_STRING functionName =
 		RTL_CONSTANT_STRING(L"ZwQueryInformationProcess");
 	ZwQueryInformationProcessPtr =
@@ -117,7 +55,7 @@ bool Processes::IsControlApp(_In_ HANDLE Process) {
 	do {
 		UNICODE_STRING* processName = (UNICODE_STRING*)ExAllocatePool2(
 			POOL_FLAG_PAGED,
-			1024,
+			DEFAULT_BUFFER_SIZE,
 			DRIVER_TAG
 		);
 
@@ -125,10 +63,10 @@ bool Processes::IsControlApp(_In_ HANDLE Process) {
 			Process,
 			ProcessImageFileName,
 			processName,
-			1024,
+			DEFAULT_BUFFER_SIZE,
 			nullptr);
 		if (NT_SUCCESS(status)) {
-			auto path = L"\\Device\\HarddiskVolume3\\bin";
+			auto path = ALL_PROGRAMS_INSTALL_PATH;
 			if (memcmp(path, processName->Buffer, wcslen(path) * sizeof(wchar_t)) == 0) {
 				res = true;
 				break;
@@ -143,17 +81,32 @@ bool Processes::IsControlApp(_In_ HANDLE Process) {
 	return res;
 }
 void Processes::SetControlAppPID(_In_ ULONG PID) {
+	m_FastMutex.Lock();
+	
 	m_AppPID = PID;
 	m_ControlAppIsLoaded = true;
+
+	m_FastMutex.Release();
 }
 
 void Processes::OnControlAppUnload() {
+	m_FastMutex.Lock();
+
 	m_ControlAppIsLoaded = false;
+
+	m_FastMutex.Release();
 }
 
 bool Processes::IsProcessAllowedAccess(_In_ ULONG PID) {
+	
+	m_FastMutex.Lock();
+
+	bool res = false;
 	if (m_ControlAppIsLoaded && m_AppPID == PID) {
-		return true;
+		res = true;
 	}
-	return false;
+
+	m_FastMutex.Release();
+
+	return res;
 }

@@ -1,6 +1,6 @@
 #include "MiniFilter.h"
 #include "..\Common\Common.h"
-#include "..\KTL\include\KTLMemory.hpp"
+#include "..\KTL\include\KTLMemory.h"
 
 DRIVER_OBJECT* Object;
 
@@ -10,8 +10,6 @@ void CleanUp(_In_ DRIVER_OBJECT* Driver);
 
 NTSTATUS Unload(
 	FLT_FILTER_UNLOAD_FLAGS Flags) {
-
-	//CleanUp(Object);
 
 	UNREFERENCED_PARAMETER(Flags);
 
@@ -55,7 +53,6 @@ FLT_PREOP_CALLBACK_STATUS PreCreateCallback(
 		if (params.Options & FILE_DELETE_ON_CLOSE) {
 
 
-			//KdPrint(("Create\n"));
 
 			if (FltObjects->FileObject == nullptr) {
 				break;
@@ -67,7 +64,6 @@ FLT_PREOP_CALLBACK_STATUS PreCreateCallback(
 				status = FLT_PREOP_COMPLETE;
 			}
 
-			// TODO: Check if delete is allowed
 		}
 	} while (false);
 
@@ -97,7 +93,6 @@ FLT_PREOP_CALLBACK_STATUS PreWriteCallback(
 			break;
 		}
 
-	//	KdPrint(("Write\n"));
 		if (!MiniFilter::GetInstance()->AllowToModify(&fileNameInfo->Name)) {
 			Data->IoStatus.Status = STATUS_ACCESS_DENIED;
 			finalStatus = FLT_PREOP_COMPLETE;
@@ -140,8 +135,7 @@ FLT_PREOP_CALLBACK_STATUS PreSetInfoCallback(
 
 		PFLT_FILE_NAME_INFORMATION fileNameInfo;
 
-		if (info->DeleteFile & 1) {
-			//KdPrint(("Set Info\n"));
+		if (info->DeleteFile) {
 
 			NTSTATUS status = FltGetFileNameInformation(
 				Data,
@@ -153,7 +147,6 @@ FLT_PREOP_CALLBACK_STATUS PreSetInfoCallback(
 			}
 
 
-			// TODO: Check if delete is allowed
 			bool res = 
 				MiniFilter::GetInstance()->AllowToModify(&fileNameInfo->Name);
 			if (!res) {
@@ -176,7 +169,6 @@ FLT_PREOP_CALLBACK_STATUS PreSetInfoCallback(
 				KdPrint(("Failed to get file name"));
 				break;
 			}
-			// TODO: Check if rename is allowed
 			bool res =
 				MiniFilter::GetInstance()->AllowToModify(&fileNameInfo->Name);
 			if (!res) {
@@ -227,21 +219,16 @@ MiniFilter* MiniFilter::GetInstance() {
 	return m_Instance;
 }
 
-void MiniFilter::Delete() {
-
-}
 
 MiniFilter::~MiniFilter() {
 	FltUnregisterFilter(m_Filter);
 }
 MiniFilter::MiniFilter() {
-	m_AhoCorasick = 
-		new (POOL_FLAG_NON_PAGED, DRIVER_TAG)AhoCorasickInterface();
 }
 
 
-/* TODO: Make the installer set this data */
-void MiniFilter::tempInitRegistry(UNICODE_STRING* RegistryPath) {
+/* TODO: Make an installer that sets this data */
+void MiniFilter::InitRegistry(UNICODE_STRING* RegistryPath) {
 	HANDLE hKey = nullptr, hSubKey = nullptr;
 	NTSTATUS status;
 	OBJECT_ATTRIBUTES keyAttr = RTL_CONSTANT_OBJECT_ATTRIBUTES(
@@ -314,16 +301,13 @@ NTSTATUS MiniFilter::InitMiniFilter(DRIVER_OBJECT* Driver) {
 			break;
 		}
 		bool res =
-			m_AhoCorasick->Init(DRIVER_MINI_FILTER_INFO_ROOT_PATH);
+			m_AhoCorasick.Init(DRIVER_MINI_FILTER_INFO_ROOT_PATH);
 		if (!res) {
 			status = STATUS_NOT_FOUND;
 		}
 
 
 	} while (false);
-
-
-	//KdPrint(("Finish Init"));
 
 	return status;
 }
@@ -334,7 +318,7 @@ NTSTATUS MiniFilter::Init(
 	
 	Object = Driver;
 
-	tempInitRegistry(Registry);
+	InitRegistry(Registry);
 	auto status = InitMiniFilter(
 		Driver);
 
@@ -344,7 +328,7 @@ NTSTATUS MiniFilter::Init(
 }
 
 bool MiniFilter::AllowToModify(_In_ UNICODE_STRING* Path) {
-	return !m_AhoCorasick->Match(Path);
+	return !m_AhoCorasick.Match(Path);
 }
 
 NTSTATUS MiniFilter::StartProtect() {
@@ -352,6 +336,6 @@ NTSTATUS MiniFilter::StartProtect() {
 }
 
 NTSTATUS MiniFilter::ReloadPolicy() {
-	return m_AhoCorasick->ReloadPolicy(DRIVER_MINI_FILTER_INFO_ROOT_PATH);
+	return m_AhoCorasick.ReloadPolicy(DRIVER_MINI_FILTER_INFO_ROOT_PATH);
 }
 

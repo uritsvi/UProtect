@@ -12,7 +12,6 @@
 
 #pragma warning(disable:4996)
 
-AhoCorasick g_Registry;
 AhoCorasick g_FilePaths;
 
 std::list<std::wstring> m_AllFilePaths;
@@ -76,11 +75,6 @@ EXPORT bool InitKProtectInteface() {
 
 	do {
 		res =
-			g_Registry.Init(REG_INFO_ROOT_PATH);
-		if (!res) {
-			break;
-		}
-		res =
 			g_FilePaths.Init(MINIFILTER_INFO_ROOT_PATH);
 
 		LoadDriver();
@@ -132,20 +126,6 @@ bool ConvertDosPathToNTFSPath(
 
 	return true;
 
-}
-bool AddRegistryPathToProtect(_In_ const PWCHAR Path) {
-	return g_Registry.AddPath(Path);
-}
-bool ApplyRegistryPaths() {
-	return g_Registry.Save();
-}
-bool TestMatchRegistry(
-	_In_ const PWCHAR Path,
-	_Out_ bool& Found) {
-	return g_Registry.TestAhoCorsickMatch(
-		Path,
-		Found
-	);
 }
 
 EXPORT bool AddFilePathToProtect(_In_ const PWCHAR Path) {
@@ -202,16 +182,6 @@ EXPORT bool TestMatchFilePath(
 	);
 
 }
-EXPORT bool QueryReg(
-	_Out_ PWCHAR Paths,
-	_In_ int Size)
-{
-	return g_Registry.ReadBuildPaths(
-		Paths,
-		Size
-	);
-}
-
 extern "C" EXPORT bool QueryMiniFilter(
 	_Out_ PWCHAR Paths,
 	_In_ int Size) {
@@ -222,9 +192,6 @@ extern "C" EXPORT bool QueryMiniFilter(
 	);
 }
 
-extern "C" EXPORT bool RemoveRegPath(_In_ const PWCHAR Path) {
-	return g_Registry.RemovePath(Path);
-}
 extern "C" EXPORT bool RemoveMiniFilterPath(_In_ const PWCHAR Path) {
 	bool found = false;
 	for (auto path : m_AllFilePaths) {
@@ -262,8 +229,7 @@ extern "C" EXPORT bool StartDriver() {
 			NULL,
 			NULL,
 			0,
-			//CREATE_NO_WINDOW,
-			0,
+			CREATE_NO_WINDOW,
 			NULL,
 			NULL,
 			&si,

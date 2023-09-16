@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
+using System.Security.Cryptography;
 
 namespace UProtectApp
 {
@@ -16,6 +17,9 @@ namespace UProtectApp
     {
         const int MaxPathLen = 256;
         const int MaxPaths = (1 << 10);
+
+        // Password is "uri"
+        const string DefaultPasswordHash = "70e5d7b6a29b392f85076fe15ca2f2053c56c2338728c4e33c9e8ddb1ee827cc";
 
         public Form1()
         {
@@ -104,6 +108,22 @@ namespace UProtectApp
 
         }
 
+        private static String Sha256(String value)
+        {
+            StringBuilder Sb = new StringBuilder();
+
+            using (SHA256 hash = SHA256Managed.Create())
+            {
+                Encoding enc = Encoding.UTF8;
+                Byte[] result = hash.ComputeHash(enc.GetBytes(value));
+
+                foreach (Byte b in result)
+                    Sb.Append(b.ToString("x2"));
+            }
+
+            return Sb.ToString();
+        }
+
         private void PasswordCallback(
             string Password,
             out bool Close,
@@ -116,7 +136,9 @@ namespace UProtectApp
                 this.Close();
                 return;
             }
-            if (Password == "a")
+
+         
+            if (Sha256(Password).ToLower() == DefaultPasswordHash)
             {
                 Close = true;
             }

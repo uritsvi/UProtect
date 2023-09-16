@@ -1,5 +1,7 @@
 #pragma once
 
+#include "..\KTL\include\FastMutex.h"
+
 class GlobalState
 {
 public:
@@ -16,6 +18,7 @@ public:
 private:
 	static GlobalState* m_Instance;
 
+	FastMutex m_FastMutex;
 	bool m_Unloaded;
 };
 

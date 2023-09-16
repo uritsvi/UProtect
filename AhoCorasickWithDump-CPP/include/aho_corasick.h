@@ -8,7 +8,6 @@
 #include "..\..\AhoCorasickWithDump-CPP\include\lib.h"
 #include "..\..\AhoCorasickWithDump-CPP\include\hash_table.h"
 
-
 #define MAX_LEAVES 1 << 16
 
 #define INT_NULL_VALUE -100

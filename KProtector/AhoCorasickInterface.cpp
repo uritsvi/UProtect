@@ -1,6 +1,6 @@
 #include "AhoCorasickInterface.h"
 #include "..\Common\Common.h"
-#include "..\KTL\include\KTLMemory.hpp"
+#include "..\KTL\include\KTLMemory.h"
 #include "GlobalState.h"
 
 /*

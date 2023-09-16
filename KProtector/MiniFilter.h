@@ -11,7 +11,6 @@ class MiniFilter
 {
 public:
 	static MiniFilter* GetInstance();
-	void Delete();
 
 	MiniFilter();
 	~MiniFilter();
@@ -30,13 +29,13 @@ private:
 		DRIVER_OBJECT* Driver
 	);
 
-	void tempInitRegistry(UNICODE_STRING* RegistryPath);
+	void InitRegistry(UNICODE_STRING* RegistryPath);
 
-public:
-	PFLT_FILTER m_Filter;
 
 private:
 	static MiniFilter* m_Instance;
-	AhoCorasickInterface* m_AhoCorasick; 
+	
+	PFLT_FILTER m_Filter;
+	AhoCorasickInterface m_AhoCorasick; 
 };
 

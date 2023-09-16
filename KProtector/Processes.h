@@ -1,27 +1,13 @@
 #pragma once
 
-//#include <ntddk.h>
+#include "..\KTL\include\FastMutex.h"
 
-//#define NULL_PROCESS_ID -100
 
 class Processes
 {
 public:
 	static Processes* GetInstance();
 
-
-	/*
-	void ShutDown();
-
-	void SelfPcreateProcessNotifyRoutineEx(
-		_Inout_           PEPROCESS Process,
-		_In_                HANDLE ProcessId,
-		_Inout_ PPS_CREATE_NOTIFY_INFO CreateInfo);
-
-	bool IsAppAlowed(_In_ ULONG PID);
-
-
-	*/
 	Processes();
 	~Processes();
 
@@ -41,6 +27,6 @@ private:
 	ULONG m_AppPID;
 	bool m_ControlAppIsLoaded;
 
-	//LONG64 g_AllowedProcessId = -100;
+	FastMutex m_FastMutex;
 };
 

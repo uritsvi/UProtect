@@ -2,7 +2,7 @@
 
 #include "Registry.h"
 #include "RAIIRegistry.h"
-#include "..\KTL\include\KTLMemory.hpp"
+#include "..\KTL\include\KTLMemory.h"
 #include "Processes.h"
 
 #define MAX_REG_PATH 256
@@ -12,16 +12,16 @@ NTSTATUS RegistryCallback(
 	_In_opt_ PVOID Argument1,
 	_In_opt_ PVOID Argument2) {
 
-	auto instance = 
+	auto instance =
 		reinterpret_cast<RegistryBlocker*>(CallbackContext);
 
 	return instance->SelfRegistryCallback(
-		Argument1, 
+		Argument1,
 		Argument2);
 
 }
 
-NTSTATUS RegistryBlocker::CreateRegistryBlocker(_Out_ RegistryBlocker **Blocker) {
+NTSTATUS RegistryBlocker::CreateRegistryBlocker(_Out_ RegistryBlocker** Blocker) {
 	NTSTATUS status = STATUS_SUCCESS;
 
 	do {
@@ -30,7 +30,7 @@ NTSTATUS RegistryBlocker::CreateRegistryBlocker(_Out_ RegistryBlocker **Blocker)
 			break;
 		}
 
-		auto out = 
+		auto out =
 			new (POOL_FLAG_PAGED, DRIVER_TAG)RegistryBlocker();
 
 		if (!NT_SUCCESS(status)) {
@@ -47,13 +47,7 @@ NTSTATUS RegistryBlocker::CreateRegistryBlocker(_Out_ RegistryBlocker **Blocker)
 
 RegistryBlocker::RegistryBlocker() {
 	m_Cookie = { 0 };
-	m_AhoCorasickInterface = new (POOL_FLAG_PAGED, DRIVER_TAG)AhoCorasickInterface();
 }
-
-bool RegistryBlocker::Init() {
-	return m_AhoCorasickInterface->Init(DRIVER_REG_INFO_ROOT_PATH);
-}
-
 
 RegistryBlocker::~RegistryBlocker() {
 	CmUnRegisterCallback(m_Cookie);
@@ -88,17 +82,8 @@ NTSTATUS RegistryBlocker::AllowToModify(_In_ PVOID Object) {
 			break;
 		}
 
-		/*
-		MatchContext context = { 0 };
-		if (m_AhoCorasickInterface->Match((UNICODE_STRING*)name)) {
 
-			KdPrint(("Blocked key %wZ", name));
-
-			status = STATUS_ACCESS_DENIED;
-		}
-		*/
-
-		auto buffer = L"\\REGISTRY\\MACHINE\\SOFTWARE\\UProtect";
+		auto buffer = ROOT_PATH;
 		if (memcmp(buffer, name->Buffer, wcslen(buffer) * sizeof(wchar_t)) == 0) {
 			if (!Processes::GetInstance()->IsProcessAllowedAccess(
 				HandleToUlong(PsGetCurrentProcessId()))) {
@@ -128,7 +113,7 @@ NTSTATUS RegistryBlocker::SelfRegistryCallback(
 	PVOID object = { 0 };
 	switch ((REG_NOTIFY_CLASS)(ULONG_PTR)Argument1)
 	{
-		/*
+
 	case RegNtPreDeleteValueKey: {
 		auto params =
 			reinterpret_cast<REG_DELETE_VALUE_KEY_INFORMATION*>(Argument2);
@@ -140,22 +125,21 @@ NTSTATUS RegistryBlocker::SelfRegistryCallback(
 			reinterpret_cast<REG_RENAME_KEY_INFORMATION*>(Argument2);
 		object = params->Object;
 	}break;
-	*/
+
 	case RegNtPreSetValueKey: {
 
 		auto params =
 			reinterpret_cast<REG_SET_VALUE_KEY_INFORMATION*>(Argument2);
 		object = params->Object;
 	}
-							/*
+
 	case RegNtDeleteKey: {
 		auto params =
 			reinterpret_cast<REG_DELETE_KEY_INFORMATION*>(Argument2);
 		object = params->Object;
 	}break;
 	}
-	*/
-	}
+
 	if (object != nullptr) {
 		status = AllowToModify(object);
 	}

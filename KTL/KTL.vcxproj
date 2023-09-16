@@ -105,10 +105,12 @@
   <ItemGroup>
     <ClInclude Include="include\EResource.h" />
     <ClInclude Include="include\KTL.h" />
-    <ClInclude Include="include\KTLMemory.hpp" />
+    <ClInclude Include="include\KTLMemory.h" />
+    <ClInclude Include="include\FastMutex.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EResource.cpp" />
+    <ClCompile Include="src\FastMutex.cpp" />
     <ClCompile Include="src\Memory.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

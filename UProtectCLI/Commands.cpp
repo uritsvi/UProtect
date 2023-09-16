@@ -63,8 +63,11 @@ bool ApplyCommand::Execute(
 	}
 
 	switch(Target) {
+		/*
 		case CommandTarget::Reg: 
 			res = ApplyRegistryPaths();break;
+		*/
+		
 		case CommandTarget::FilePath:
 			res = ApplyFilePaths(); break;
 	}
@@ -86,8 +89,10 @@ bool ProtectCommand::Execute(
 	}
 
 	switch(Target) {
+		/*
 		case CommandTarget::Reg: 
 			res = AddRegistryPathToProtect((PWCHAR)Extra); break;
+		*/
 		case CommandTarget::FilePath:
 			res = AddFilePathToProtect((PWCHAR)Extra);
 	}
@@ -111,11 +116,13 @@ bool TestCommand::Execute(
 	bool match = false;
 
 	switch (Target) {
+		/*
 		case CommandTarget::Reg:
 			res = TestMatchRegistry(
 				(PWCHAR)Extra, 
 				match
 			);
+			*/
 		case CommandTarget::FilePath:
 			res = TestMatchFilePath(
 				(PWCHAR)Extra,

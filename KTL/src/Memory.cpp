@@ -1,4 +1,4 @@
-#include "..\include\KTLMemory.hpp"
+#include "..\include\KTLMemory.h"
 
 void* operator new(
 	_In_ size_t size,

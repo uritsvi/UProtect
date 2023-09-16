@@ -9,7 +9,6 @@ public:
 	static NTSTATUS CreateRegistryBlocker
 		(_Out_ RegistryBlocker** RegistryBlocker);
 	
-	bool Init();
 
 	RegistryBlocker();
 	~RegistryBlocker();
@@ -24,9 +23,6 @@ public:
 
 private:
 	LARGE_INTEGER m_Cookie;
-	AhoCorasickInterface* m_AhoCorasickInterface;
 	
-	//FinalTrieEntry* m_BlockTrie;
-	//WCharRange m_WCharRange;
 };
 

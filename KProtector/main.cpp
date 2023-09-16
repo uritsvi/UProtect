@@ -8,7 +8,7 @@
 #include "Processes.h"
 #include "GlobalState.h"
 
-#include "..\KTL\include\KTLMemory.hpp"
+#include "..\KTL\include\KTLMemory.h"
 
 #define DEV_NAME L"\\Device\\KProtect"
 #define SYM_LINK L"\\??\\KProtect"
@@ -16,13 +16,8 @@
 RegistryBlocker* g_Registry;
 
 void CleanUp(_In_ DRIVER_OBJECT* Driver) {
-	/*
-	if (g_Filter) {
-		delete g_Filter;
-	}
-	*/
 
-	FltUnregisterFilter(MiniFilter::GetInstance()->m_Filter);
+	delete MiniFilter::GetInstance();
 
 	if (Driver->DeviceObject != nullptr) {
 		UNICODE_STRING symLink =
@@ -33,8 +28,6 @@ void CleanUp(_In_ DRIVER_OBJECT* Driver) {
 	}
 
 	delete g_Registry;
-
-	//Processes::GetInstance()->ShutDown();
 }
 
 NTSTATUS CompleteReq(
@@ -83,7 +76,6 @@ NTSTATUS Control(
 	switch (dic.IoControlCode)
 	{
 	case IOCTL_RELOAD_MINIFILTER_POLICY: {
-		KdPrint(("IOCTL"));
 		status = MiniFilter::GetInstance()->ReloadPolicy();
 	}break;
 
@@ -191,12 +183,7 @@ extern "C" NTSTATUS DriverEntry(
 			CleanUp(Driver);
 			break;
 		}
-		status =
-			g_Registry->Init();
-		if (!NT_SUCCESS(status)) {
-			CleanUp(Driver);
-			break;
-		}
+
 
 		status = MiniFilter::GetInstance()->Init(
 			Driver,

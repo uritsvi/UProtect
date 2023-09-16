@@ -372,6 +372,10 @@ bool AhoCorasick::TestAhoCorsickMatch(
 		int i = 0;
 		while (true) {
 			char* current = buffer + (i * DEFAULT_BUFFER_SIZE);
+			if (current == nullptr) {
+				res = false;
+				break;
+			}
 
 			DWORD size = DEFAULT_BUFFER_SIZE;
 			res = m_RootKey->ReadValue(

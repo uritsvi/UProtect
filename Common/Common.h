@@ -2,11 +2,12 @@
 
 #define DRIVER_SYM_LINK L"\\\\.\\KProtect"
 
-#define REG_INFO_ROOT_PATH L"SOFTWARE\\UProtect\\REG"
-#define MINIFILTER_INFO_ROOT_PATH L"SOFTWARE\\UProtect\\MINIFILTER"
+#define ROOT_PATH L"\\REGISTRY\\MACHINE\\SOFTWARE\\UProtect"
 
-#define DRIVER_REG_INFO_ROOT_PATH L"\\Registry\\Machine\\Software\\UProtect\\REG"
+#define MINIFILTER_INFO_ROOT_PATH L"SOFTWARE\\UProtect\\MINIFILTER"
 #define DRIVER_MINI_FILTER_INFO_ROOT_PATH L"\\Registry\\Machine\\Software\\UProtect\\MINIFILTER"
+
+#define ALL_PROGRAMS_INSTALL_PATH L"\\Device\\HarddiskVolume3\\UPROTECT\\bin"
 
 #define REG_TRIE_SIZE_VALUE_NAME L"Size"
 #define REG_TRIE_WCHAR_RANGE_VALUE_NAME L"Range"

@@ -22,10 +22,13 @@
     <ClInclude Include="include\KTL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\KTLMemory.hpp">
+    <ClInclude Include="include\KTLMemory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\EResource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FastMutex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -34,6 +37,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\EResource.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FastMutex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
