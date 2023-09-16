@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{20A771F5-7D50-437A-9529-EA61CCA5A6E0}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KProtectDll", "KProtectDll\KProtectDll.vcxproj", "{54EF58A0-2FA0-4051-A4E3-DD07230F217F}"
 	ProjectSection(ProjectDependencies) = postProject
