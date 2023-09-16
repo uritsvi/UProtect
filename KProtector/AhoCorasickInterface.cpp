@@ -1,6 +1,7 @@
 #include "AhoCorasickInterface.h"
 #include "..\Common\Common.h"
 #include "..\KTL\include\KTLMemory.hpp"
+#include "GlobalState.h"
 
 /*
 * I include this file last becaus it is dependent on
@@ -136,6 +137,10 @@ bool AhoCorasickInterface::Init(_In_ const WCHAR* RootKey) {
 }
 
 bool AhoCorasickInterface::Match(_In_ UNICODE_STRING* Path) {
+
+	if (GlobalState::GetInstance()->IsDriverUnloaded()) {
+		return false;
+	}
 
 	m_EResource->LockShared();
 

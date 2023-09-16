@@ -55,7 +55,7 @@ FLT_PREOP_CALLBACK_STATUS PreCreateCallback(
 		if (params.Options & FILE_DELETE_ON_CLOSE) {
 
 
-			KdPrint(("Create\n"));
+			//KdPrint(("Create\n"));
 
 			if (FltObjects->FileObject == nullptr) {
 				break;
@@ -97,7 +97,7 @@ FLT_PREOP_CALLBACK_STATUS PreWriteCallback(
 			break;
 		}
 
-		KdPrint(("Write\n"));
+	//	KdPrint(("Write\n"));
 		if (!MiniFilter::GetInstance()->AllowToModify(&fileNameInfo->Name)) {
 			Data->IoStatus.Status = STATUS_ACCESS_DENIED;
 			finalStatus = FLT_PREOP_COMPLETE;
@@ -141,7 +141,7 @@ FLT_PREOP_CALLBACK_STATUS PreSetInfoCallback(
 		PFLT_FILE_NAME_INFORMATION fileNameInfo;
 
 		if (info->DeleteFile & 1) {
-			KdPrint(("Set Info\n"));
+			//KdPrint(("Set Info\n"));
 
 			NTSTATUS status = FltGetFileNameInformation(
 				Data,
@@ -323,7 +323,7 @@ NTSTATUS MiniFilter::InitMiniFilter(DRIVER_OBJECT* Driver) {
 	} while (false);
 
 
-	KdPrint(("Finish Init"));
+	//KdPrint(("Finish Init"));
 
 	return status;
 }

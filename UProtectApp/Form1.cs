@@ -205,7 +205,12 @@ namespace UProtectApp
 
         private void SaveButton_Click(object sender, EventArgs e)
         {
-            KprotectDll.ApplyFilePaths();
+            bool res = 
+                KprotectDll.ApplyFilePaths();
+            if (!res)
+            {
+                MessageBox.Show("Failed to save paths!");
+            }
         }
 
         private void StartDriverButton_Click(object sender, EventArgs e)
@@ -218,6 +223,7 @@ namespace UProtectApp
                 return;
             }
             SwapStartStopDriverButtonsState();
+
         }
 
         private void StopDriverButton_Click(object sender, EventArgs e)
@@ -230,6 +236,16 @@ namespace UProtectApp
                 return;
             }
             SwapStartStopDriverButtonsState();
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            KprotectDll.ShutDownd();
+        }
+
+        private void Entries_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

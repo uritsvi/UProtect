@@ -5,6 +5,8 @@
 #include "Driver.h"
 #include "Registry.h"
 #include "RAIIRegistry.h"
+#include "Processes.h"
+#include "GlobalState.h"
 
 #include "..\KTL\include\KTLMemory.hpp"
 
@@ -21,9 +23,9 @@ void CleanUp(_In_ DRIVER_OBJECT* Driver) {
 	*/
 
 	FltUnregisterFilter(MiniFilter::GetInstance()->m_Filter);
-	
+
 	if (Driver->DeviceObject != nullptr) {
-		UNICODE_STRING symLink = 
+		UNICODE_STRING symLink =
 			RTL_CONSTANT_STRING(SYM_LINK);
 
 		IoDeleteDevice(Driver->DeviceObject);
@@ -31,18 +33,20 @@ void CleanUp(_In_ DRIVER_OBJECT* Driver) {
 	}
 
 	delete g_Registry;
+
+	//Processes::GetInstance()->ShutDown();
 }
 
 NTSTATUS CompleteReq(
-	_In_ IRP* Irp, 
-	_In_ NTSTATUS Status=STATUS_SUCCESS, 
-	_In_ int Info=0) {
-	
+	_In_ IRP* Irp,
+	_In_ NTSTATUS Status = STATUS_SUCCESS,
+	_In_ int Info = 0) {
+
 	Irp->IoStatus.Status = Status;
 	Irp->IoStatus.Information = Info;
 
 	IoCompleteRequest(
-		Irp, 
+		Irp,
 		IO_NO_INCREMENT);
 
 	return Status;
@@ -58,13 +62,23 @@ NTSTATUS CreateClose(
 }
 
 NTSTATUS Control(
-	_In_ DEVICE_OBJECT* Device, 
+	_In_ DEVICE_OBJECT* Device,
 	_In_ IRP* Irp) {
+
+	UNREFERENCED_PARAMETER(Device);
 
 	auto sp = IoGetCurrentIrpStackLocation(Irp);
 	auto dic = sp->Parameters.DeviceIoControl;
 
 	NTSTATUS status = STATUS_SUCCESS;
+
+	do {
+
+	if (!Processes::GetInstance()->IsControlApp(NtCurrentProcess())) {
+		status = STATUS_ACCESS_DENIED;
+		break;
+	}
+
 
 	switch (dic.IoControlCode)
 	{
@@ -72,17 +86,28 @@ NTSTATUS Control(
 		KdPrint(("IOCTL"));
 		status = MiniFilter::GetInstance()->ReloadPolicy();
 	}break;
-			
 
-		default:KdPrint(("Invalid control code!")); break;
+	case IOCTL_DLL_LOAD: {
+		HANDLE processHandle = PsGetCurrentProcessId();
+		ULONG pid = HandleToUlong(processHandle);
+
+		Processes::GetInstance()->SetControlAppPID(pid);
+	}break;
+
+	case IOCTL_DLL_UNLOAD: {
+		Processes::GetInstance()->OnControlAppUnload();
+
+	}break;
+
+	case IOCTL_DRIVER_UNLOAD: {
+		GlobalState::GetInstance()->UnloadDriver();
+
+	}break;
+	case IOCTL_DRIVER_LOAD: {
+		GlobalState::GetInstance()->LoadDriver();
+	}break;
 	}
-
-	if (!NT_SUCCESS(status)) {
-		KdPrint(("Failed to reload minifilter policy"));
-	}
-
-	UNREFERENCED_PARAMETER(Device);
-
+	} while (false);
 
 	return CompleteReq(Irp, status);
 }
@@ -92,9 +117,9 @@ void Unload(_In_ DRIVER_OBJECT* Driver) {
 }
 
 extern "C" NTSTATUS DriverEntry(
-	_In_ DRIVER_OBJECT * Driver, 
+	_In_ DRIVER_OBJECT * Driver,
 	_In_ UNICODE_STRING * Registry) {
-	
+
 
 	UNREFERENCED_PARAMETER(Registry);
 
@@ -103,20 +128,20 @@ extern "C" NTSTATUS DriverEntry(
 	NTSTATUS status = STATUS_SUCCESS;
 
 	do {
-		UNICODE_STRING devName = 
+		UNICODE_STRING devName =
 			RTL_CONSTANT_STRING(DEV_NAME);
-		
-		UNICODE_STRING symLink = 
+
+		UNICODE_STRING symLink =
 			RTL_CONSTANT_STRING(SYM_LINK);
 
 		DEVICE_OBJECT* dev;
 		status = IoCreateDevice(
-			Driver, 
-			0, 
-			&devName, 
-			FILE_DEVICE_UNKNOWN, 
-			0, 
-			FALSE, 
+			Driver,
+			0,
+			&devName,
+			FILE_DEVICE_UNKNOWN,
+			0,
+			FALSE,
 			&dev);
 		if (!NT_SUCCESS(status)) {
 			CleanUp(Driver);
@@ -124,9 +149,9 @@ extern "C" NTSTATUS DriverEntry(
 			KdPrint(("Failed to create dev object"));
 			break;
 		}
-		
+
 		status = IoCreateSymbolicLink(
-			&symLink, 
+			&symLink,
 			&devName);
 		if (!NT_SUCCESS(status)) {
 			CleanUp(Driver);
@@ -145,36 +170,36 @@ extern "C" NTSTATUS DriverEntry(
 
 		init_aho_corasick(
 			[](size_t size) {
-				return 
-					ExAllocatePool2(
-					POOL_FLAG_PAGED, 
-					size, 
-					DRIVER_TAG); 
+				return
+				ExAllocatePool2(
+					POOL_FLAG_PAGED,
+					size,
+					DRIVER_TAG);
 			},
 			[](void* mem) {
 				ExFreePool(mem);
 			},
-			[](void* dest, const void* src, size_t count) {
-					RtlCopyMemory(dest, src, count);
+				[](void* dest, const void* src, size_t count) {
+				RtlCopyMemory(dest, src, count);
 			}
-		);
+			);
 
-		
-		status = 
+
+		status =
 			RegistryBlocker::CreateRegistryBlocker(&g_Registry);
 		if (!NT_SUCCESS(status)) {
 			CleanUp(Driver);
 			break;
 		}
-		status = 
+		status =
 			g_Registry->Init();
 		if (!NT_SUCCESS(status)) {
 			CleanUp(Driver);
 			break;
 		}
-	
+
 		status = MiniFilter::GetInstance()->Init(
-			Driver, 
+			Driver,
 			Registry);
 		if (!NT_SUCCESS(status)) {
 			CleanUp(Driver);
@@ -182,13 +207,15 @@ extern "C" NTSTATUS DriverEntry(
 			break;
 		}
 
-		status = 
+		status =
 			MiniFilter::GetInstance()->StartProtect();
 		if (!NT_SUCCESS(status)) {
 			KdPrint(("Failed to start filtering"));
 			break;
 		}
 		g_Registry->StartProtect();
+
+		status = Processes::GetInstance()->Init();
 
 	} while (false);
 

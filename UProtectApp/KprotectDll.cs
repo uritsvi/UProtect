@@ -84,5 +84,12 @@ namespace UProtectApp
         [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.I1)]
         public static extern bool IsDriverLoaded();
 
+        /// Return Type: boolean
+        [System.Runtime.InteropServices.DllImportAttribute("KProtectDll.dll", EntryPoint = "ShutDownd")]
+        [return: System.Runtime.InteropServices.MarshalAsAttribute(System.Runtime.InteropServices.UnmanagedType.I1)]
+        public static extern bool ShutDownd();
+
+
+
     }
 }

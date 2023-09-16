@@ -19,6 +19,8 @@ std::list<std::wstring> m_AllFilePaths;
 
 HANDLE g_DriverHandle;
 
+extern "C" EXPORT bool RegistrInDriver();
+
 bool ConvertDosPathToNTFSPath(
 	_In_ const WCHAR* DosPath,
 	_Out_ WCHAR* NTFSBuffer,
@@ -39,7 +41,34 @@ bool LoadDriver() {
 	if (g_DriverHandle == INVALID_HANDLE_VALUE) {
 		return false;
 	}
+
+	RegistrInDriver();
 	return true;
+}
+
+extern "C" EXPORT bool RegistrInDriver() {
+	auto processId = GetCurrentProcessId();
+	return 	DeviceIoControl(
+		g_DriverHandle,
+		IOCTL_DLL_LOAD,
+		(LPVOID)processId,
+		sizeof(processId),
+		nullptr,
+		0,
+		nullptr,
+		nullptr);
+}
+
+bool ShutDownd() {
+	return DeviceIoControl(
+		g_DriverHandle,
+		IOCTL_DLL_UNLOAD,
+		nullptr,
+		0,
+		nullptr,
+		0,
+		nullptr,
+		nullptr);
 }
 
 EXPORT bool InitKProtectInteface() {
@@ -221,50 +250,55 @@ extern "C" EXPORT bool RemoveMiniFilterPath(_In_ const PWCHAR Path) {
 }
 
 extern "C" EXPORT bool StartDriver() {
-	STARTUPINFO si = { sizeof(STARTUPINFO) };
-	PROCESS_INFORMATION pi;
 
-	if (!CreateProcessW(
-		L"C:\\Windows\\System32\\cmd.exe",
-		(LPWSTR)L"/C sc start Kprotect",
-		NULL, 
-		NULL, 
-		0, 
-		CREATE_NO_WINDOW,
-		NULL, 
-		NULL, 
-		&si, 
-		&pi))
-	{
-		return false;
+	if (g_DriverHandle == INVALID_HANDLE_VALUE) {
+		PROCESS_INFORMATION pi;
+		STARTUPINFO si = { sizeof(STARTUPINFO) };
+
+		
+		CreateProcessW(
+			L"C:\\Windows\\System32\\cmd.exe",
+			(LPWSTR)L"/C sc start Kprotect",
+			NULL,
+			NULL,
+			0,
+			//CREATE_NO_WINDOW,
+			0,
+			NULL,
+			NULL,
+			&si,
+			&pi);
+		WaitForSingleObject(pi.hProcess, INFINITE);
+
+		return LoadDriver();
+
 	}
 
-	WaitForSingleObject(pi.hProcess, INFINITE);
+	return DeviceIoControl(
+		g_DriverHandle,
+		IOCTL_DRIVER_LOAD,
+		nullptr,
+		0,
+		nullptr,
+		0,
+		nullptr,
+		nullptr);
 
-	return 	LoadDriver();
 }
 extern "C" EXPORT bool StopDriver() {
 	STARTUPINFO si = { sizeof(STARTUPINFO) };
 	PROCESS_INFORMATION pi;
 
-	CloseHandle(g_DriverHandle);
-
-	if (!CreateProcessW(
-		L"C:\\Windows\\System32\\cmd.exe",
-		(LPWSTR)L"/C sc stop Kprotect",
-		NULL,
-		NULL,
+	return DeviceIoControl(
+		g_DriverHandle,
+		IOCTL_DRIVER_UNLOAD,
+		nullptr,
 		0,
-		CREATE_NO_WINDOW,
-		NULL,
-		NULL,
-		&si,
-		&pi))
-	{
-		return false;
-	}
+		nullptr,
+		0,
+		nullptr,
+		nullptr);
 
-	return true;
 }
 
 extern "C" EXPORT bool IsDriverLoaded() {

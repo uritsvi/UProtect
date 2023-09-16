@@ -7,6 +7,9 @@
 
 extern "C" EXPORT bool InitKProtectInteface();
 
+//extern "C" EXPORT bool RegistrInDriver();
+extern "C" EXPORT bool ShutDownd();
+
 extern "C" EXPORT bool AddRegistryPathToProtect(_In_ const PWCHAR Path);
 extern "C" EXPORT bool ApplyRegistryPaths();
 extern "C" EXPORT bool TestMatchRegistry(

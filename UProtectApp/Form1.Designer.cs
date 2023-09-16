@@ -57,6 +57,7 @@
             this.Entries.Size = new System.Drawing.Size(791, 394);
             this.Entries.TabIndex = 7;
             this.Entries.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.ItemCheck_Callback);
+            this.Entries.SelectedIndexChanged += new System.EventHandler(this.Entries_SelectedIndexChanged);
             // 
             // NewEntryTextBox
             // 
@@ -144,6 +145,7 @@
             this.Controls.Add(this.AddButton);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
